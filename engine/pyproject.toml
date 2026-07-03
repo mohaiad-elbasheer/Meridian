@@ -1,0 +1,22 @@
+[project]
+name = "meridian-engine"
+version = "0.1.0"
+description = "Meridian two-layer analysis engine (FCM + trade network). Pure, no I/O."
+requires-python = ">=3.11"
+dependencies = ["pydantic>=2.7", "numpy>=1.26", "networkx>=3.2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.4"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["meridian_engine*"]
+
+[tool.setuptools.package-data]
+meridian_engine = ["maps/*.json"]
+
+[tool.ruff]
+line-length = 100

@@ -1,0 +1,8 @@
+[project]
+name = "meridian-api"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["fastapi>=0.111", "uvicorn[standard]>=0.29", "meridian-engine", "psycopg[binary]>=3.1", "pydantic-settings>=2.2"]
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"

@@ -1,0 +1,248 @@
+{
+  "name": "macro_v0",
+  "version": "0.1.0",
+  "squashing": "tanh",
+  "lam": 1.0,
+  "concepts": [
+    {
+      "id": "armed_conflict",
+      "label": "Armed conflict intensity (region)",
+      "layer": "hazard"
+    },
+    {
+      "id": "natural_hazard",
+      "label": "Natural hazard severity",
+      "layer": "hazard"
+    },
+    {
+      "id": "sanction_risk",
+      "label": "Sanctions / export-control risk",
+      "layer": "hazard"
+    },
+    {
+      "id": "chokepoint_disruption",
+      "label": "Chokepoint disruption level",
+      "layer": "logistics"
+    },
+    {
+      "id": "port_congestion",
+      "label": "Port congestion",
+      "layer": "logistics"
+    },
+    {
+      "id": "rerouting_activity",
+      "label": "Rerouting activity",
+      "layer": "logistics"
+    },
+    {
+      "id": "war_risk_premium",
+      "label": "War-risk insurance premium",
+      "layer": "economic"
+    },
+    {
+      "id": "freight_rates",
+      "label": "Container freight rates",
+      "layer": "economic"
+    },
+    {
+      "id": "energy_prices",
+      "label": "Bunker / energy prices",
+      "layer": "economic"
+    },
+    {
+      "id": "lead_time",
+      "label": "End-to-end lead time",
+      "layer": "outcome"
+    },
+    {
+      "id": "supply_availability",
+      "label": "Supply availability",
+      "layer": "outcome"
+    },
+    {
+      "id": "landed_cost",
+      "label": "Landed cost index",
+      "layer": "outcome"
+    }
+  ],
+  "edges": [
+    {
+      "source": "armed_conflict",
+      "target": "chokepoint_disruption",
+      "weight": 0.7,
+      "provenance": {
+        "citation": "",
+        "source_type": "unassigned",
+        "confidence": 0.5,
+        "provisional": true,
+        "notes": "TODO(owner): assign from literature, IMAACA-style elicitation protocol"
+      }
+    },
+    {
+      "source": "armed_conflict",
+      "target": "war_risk_premium",
+      "weight": 0.8,
+      "provenance": {
+        "citation": "",
+        "source_type": "unassigned",
+        "confidence": 0.5,
+        "provisional": true
+      }
+    },
+    {
+      "source": "natural_hazard",
+      "target": "port_congestion",
+      "weight": 0.6,
+      "provenance": {
+        "citation": "",
+        "source_type": "unassigned",
+        "confidence": 0.5,
+        "provisional": true
+      }
+    },
+    {
+      "source": "sanction_risk",
+      "target": "rerouting_activity",
+      "weight": 0.4,
+      "provenance": {
+        "citation": "",
+        "source_type": "unassigned",
+        "confidence": 0.5,
+        "provisional": true
+      }
+    },
+    {
+      "source": "chokepoint_disruption",
+      "target": "rerouting_activity",
+      "weight": 0.8,
+      "provenance": {
+        "citation": "",
+        "source_type": "unassigned",
+        "confidence": 0.5,
+        "provisional": true
+      }
+    },
+    {
+      "source": "chokepoint_disruption",
+      "target": "freight_rates",
+      "weight": 0.6,
+      "provenance": {
+        "citation": "",
+        "source_type": "unassigned",
+        "confidence": 0.5,
+        "provisional": true
+      }
+    },
+    {
+      "source": "rerouting_activity",
+      "target": "lead_time",
+      "weight": 0.7,
+      "provenance": {
+        "citation": "",
+        "source_type": "unassigned",
+        "confidence": 0.5,
+        "provisional": true
+      }
+    },
+    {
+      "source": "rerouting_activity",
+      "target": "energy_prices",
+      "weight": 0.3,
+      "provenance": {
+        "citation": "",
+        "source_type": "unassigned",
+        "confidence": 0.5,
+        "provisional": true
+      }
+    },
+    {
+      "source": "port_congestion",
+      "target": "lead_time",
+      "weight": 0.6,
+      "provenance": {
+        "citation": "",
+        "source_type": "unassigned",
+        "confidence": 0.5,
+        "provisional": true
+      }
+    },
+    {
+      "source": "war_risk_premium",
+      "target": "freight_rates",
+      "weight": 0.5,
+      "provenance": {
+        "citation": "",
+        "source_type": "unassigned",
+        "confidence": 0.5,
+        "provisional": true
+      }
+    },
+    {
+      "source": "energy_prices",
+      "target": "freight_rates",
+      "weight": 0.4,
+      "provenance": {
+        "citation": "",
+        "source_type": "unassigned",
+        "confidence": 0.5,
+        "provisional": true
+      }
+    },
+    {
+      "source": "freight_rates",
+      "target": "landed_cost",
+      "weight": 0.7,
+      "provenance": {
+        "citation": "",
+        "source_type": "unassigned",
+        "confidence": 0.5,
+        "provisional": true
+      }
+    },
+    {
+      "source": "lead_time",
+      "target": "supply_availability",
+      "weight": -0.6,
+      "provenance": {
+        "citation": "",
+        "source_type": "unassigned",
+        "confidence": 0.5,
+        "provisional": true
+      }
+    },
+    {
+      "source": "lead_time",
+      "target": "landed_cost",
+      "weight": 0.4,
+      "provenance": {
+        "citation": "",
+        "source_type": "unassigned",
+        "confidence": 0.5,
+        "provisional": true
+      }
+    }
+  ],
+  "couplings": [
+    {
+      "concept_id": "chokepoint_disruption",
+      "network_parameter": "chokepoint_capacity_multiplier",
+      "gain": -0.9,
+      "min_multiplier": 0.05,
+      "max_multiplier": 1.0
+    },
+    {
+      "concept_id": "war_risk_premium",
+      "network_parameter": "reroute_cost_factor",
+      "gain": 1.5,
+      "min_multiplier": 1.0,
+      "max_multiplier": 4.0
+    },
+    {
+      "concept_id": "port_congestion",
+      "network_parameter": "port_dwell_factor",
+      "gain": 1.0,
+      "min_multiplier": 1.0,
+      "max_multiplier": 3.0
+    }
+  ]
+}

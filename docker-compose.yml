@@ -1,0 +1,33 @@
+services:
+  db:
+    image: timescale/timescaledb:latest-pg16   # multi-arch, works on OCI Ampere (arm64)
+    environment:
+      POSTGRES_USER: meridian
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-meridian}
+      POSTGRES_DB: meridian
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+      - ./infra/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports: ["5432:5432"]
+
+  api:
+    build: ./api
+    environment:
+      DATABASE_URL: postgresql://meridian:${POSTGRES_PASSWORD:-meridian}@db:5432/meridian
+    depends_on: [db]
+    ports: ["8000:8000"]
+
+  ingestion:
+    build: ./ingestion
+    env_file: .env
+    depends_on: [db]
+    profiles: ["ingest"]
+
+  web:
+    build: ./web
+    depends_on: [api]
+    ports: ["5173:80"]
+    profiles: ["web"]
+
+volumes:
+  dbdata:
