@@ -1,0 +1,14 @@
+{
+  "objectIdFieldName": "objectid",
+  "features": [
+    {"attributes": {"objectid": 10, "portid": "port1114", "portname": "Rotterdam",
+      "ISO3": "NLD", "date": 1750896000000, "portcalls": 61, "portcalls_cargo": 44,
+      "portcalls_tanker": 17, "import": 812345.2, "export": 501234.9}},
+    {"attributes": {"objectid": 11, "portid": "port1201", "portname": "Singapore",
+      "ISO3": "SGP", "date": 1750896000000, "portcalls": 140, "portcalls_cargo": 95,
+      "portcalls_tanker": 45, "import": 1512345.0, "export": 1423456.7}},
+    {"attributes": {"objectid": 12, "portid": null, "portname": "Broken row",
+      "date": 1750896000000, "portcalls": 3}}
+  ],
+  "exceededTransferLimit": false
+}
