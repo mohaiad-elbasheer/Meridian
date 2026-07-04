@@ -101,6 +101,53 @@ export function fetchSourcesStatus(): Promise<SourcesStatus> {
   return request<SourcesStatus>("/sources/status");
 }
 
+export interface SavedScenario {
+  id: string;
+  name: string;
+  spec: ScenarioSpec;
+  created_at: string;
+  updated_at: string;
+}
+
+export function listScenarios(): Promise<SavedScenario[]> {
+  return request<SavedScenario[]>("/scenarios");
+}
+
+export function saveScenario(name: string, spec: ScenarioSpec): Promise<SavedScenario> {
+  return request<SavedScenario>("/scenarios", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, spec }),
+  });
+}
+
+export function deleteScenario(id: string): Promise<void> {
+  return fetch(`/api/scenarios/${id}`, { method: "DELETE" }).then(() => undefined);
+}
+
+export interface FcmConcept {
+  id: string;
+  label: string;
+  layer: "hazard" | "logistics" | "economic" | "outcome";
+}
+
+export interface FcmEdge {
+  source: string;
+  target: string;
+  weight: number;
+  provenance: { citation: string; provisional: boolean; confidence: number };
+}
+
+export interface FcmMap {
+  name: string;
+  concepts: FcmConcept[];
+  edges: FcmEdge[];
+}
+
+export function fetchFcmMap(): Promise<FcmMap> {
+  return request<FcmMap>("/fcm/map");
+}
+
 export function simulateScenario(spec: ScenarioSpec): Promise<ScenarioResult> {
   return request<ScenarioResult>("/scenario/simulate", {
     method: "POST",

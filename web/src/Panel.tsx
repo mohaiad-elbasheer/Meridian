@@ -1,5 +1,64 @@
-import type { Baseline, NetworkNode, ScenarioResult, SourcesStatus } from "./api";
+import { useState } from "react";
+import type {
+  Baseline, NetworkNode, SavedScenario, ScenarioResult, ScenarioSpec, SourcesStatus,
+} from "./api";
 import { days, factor, pct, tons } from "./format";
+
+interface SavedProps {
+  saved: SavedScenario[] | null;
+  spec: ScenarioSpec;
+  onSave: (name: string) => Promise<void>;
+  onLoad: (s: SavedScenario) => void;
+  onDelete: (id: string) => Promise<void>;
+}
+
+export function SavedScenarios({ saved, spec, onSave, onLoad, onDelete }: SavedProps) {
+  const [name, setName] = useState("");
+  const [busy, setBusy] = useState(false);
+  if (saved === null) return null; // storage unavailable (no DB) — hide quietly
+  return (
+    <section>
+      <h2>Saved scenarios</h2>
+      {saved.length === 0 && <div className="empty">nothing saved yet</div>}
+      {saved.map((s) => (
+        <div className="saved-item" key={s.id}>
+          <button className="load" title="load into the builder" onClick={() => onLoad(s)}>
+            {s.name}
+          </button>
+          <span className="meta">
+            −{Math.round(s.spec.capacity_reduction * 100)}% · {s.spec.duration_days}d
+          </span>
+          <button className="del" aria-label={`delete ${s.name}`} onClick={() => onDelete(s.id)}>
+            ×
+          </button>
+        </div>
+      ))}
+      <div className="save-row">
+        <input
+          type="text" placeholder="name this scenario" value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <button
+          disabled={busy || !name.trim()}
+          onClick={async () => {
+            setBusy(true);
+            try {
+              await onSave(name.trim());
+              setName("");
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          Save
+        </button>
+      </div>
+      <div className="baseline-note">
+        saves the current builder state ({spec.name})
+      </div>
+    </section>
+  );
+}
 
 const TABLE_LABELS: Record<string, string> = {
   chokepoint_daily: "PortWatch chokepoints",
@@ -34,12 +93,12 @@ interface ControlsProps {
   targetId: string;
   reduction: number;
   duration: number;
-  escalation: boolean;
+  clamps: Record<string, number>;
   running: boolean;
   onTarget: (id: string) => void;
   onReduction: (v: number) => void;
   onDuration: (v: number) => void;
-  onEscalation: (v: boolean) => void;
+  onClampsChange: (clamps: Record<string, number>) => void;
   onRun: () => void;
 }
 
@@ -76,12 +135,36 @@ export function ScenarioControls(p: ControlsProps) {
       <div className="field">
         <label className="check">
           <input
-            type="checkbox" checked={p.escalation}
-            onChange={(e) => p.onEscalation(e.target.checked)}
+            type="checkbox" checked={p.clamps["armed_conflict"] === 1.0}
+            onChange={(e) => {
+              const next = { ...p.clamps };
+              if (e.target.checked) next["armed_conflict"] = 1.0;
+              else delete next["armed_conflict"];
+              p.onClampsChange(next);
+            }}
           />
           <span>armed-conflict escalation (clamps FCM concept to 1.0)</span>
         </label>
       </div>
+      {Object.keys(p.clamps).length > 0 && (
+        <div className="chips">
+          {Object.entries(p.clamps).map(([id, v]) => (
+            <span className="chip" key={id}>
+              {id} ⊦ {v.toFixed(2)}
+              <button
+                aria-label={`release ${id}`}
+                onClick={() => {
+                  const next = { ...p.clamps };
+                  delete next[id];
+                  p.onClampsChange(next);
+                }}
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
       <button className="run" disabled={p.running || !p.targetId} onClick={p.onRun}>
         {p.running ? "Running…" : "Run scenario"}
       </button>
