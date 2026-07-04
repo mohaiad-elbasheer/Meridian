@@ -16,7 +16,7 @@ build-backend = "setuptools.build_meta"
 include = ["meridian_engine*"]
 
 [tool.setuptools.package-data]
-meridian_engine = ["maps/*.json"]
+meridian_engine = ["maps/*.json", "data/*.json"]
 
 [tool.ruff]
 line-length = 100

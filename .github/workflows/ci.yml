@@ -12,3 +12,31 @@ jobs:
       - run: pip install -e ./engine[dev]
       - run: ruff check engine
       - run: pytest engine/tests -q
+  ingestion-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -e ./ingestion[dev]
+      - run: ruff check ingestion
+      - run: pytest ingestion/tests -q
+  api-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -e ./engine -e ./api[dev]
+      - run: ruff check api
+      - run: pytest api/tests -q
+  web-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: npm ci
+        working-directory: web
+      - run: npm run build
+        working-directory: web

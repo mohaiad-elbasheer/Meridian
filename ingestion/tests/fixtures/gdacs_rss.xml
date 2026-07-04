@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+     xmlns:gdacs="http://www.gdacs.org"
+     xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#">
+  <channel>
+    <title>GDACS RSS</title>
+    <item>
+      <title>Tropical Cyclone ALPHA-26</title>
+      <guid>TC1001234</guid>
+      <pubDate>Thu, 02 Jul 2026 06:00:00 GMT</pubDate>
+      <gdacs:eventtype>TC</gdacs:eventtype>
+      <gdacs:alertlevel>Orange</gdacs:alertlevel>
+      <geo:Point>
+        <geo:lat>13.2</geo:lat>
+        <geo:long>124.5</geo:long>
+      </geo:Point>
+    </item>
+    <item>
+      <title>Earthquake in region X</title>
+      <guid>EQ1449912</guid>
+      <pubDate>Thu, 02 Jul 2026 09:30:00 GMT</pubDate>
+      <gdacs:eventtype>EQ</gdacs:eventtype>
+      <gdacs:alertlevel>Green</gdacs:alertlevel>
+      <geo:Point>
+        <geo:lat>-24.7</geo:lat>
+        <geo:long>178.1</geo:long>
+      </geo:Point>
+    </item>
+  </channel>
+</rss>

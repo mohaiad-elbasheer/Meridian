@@ -1,0 +1,20 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {"title": "USGS Significant Earthquakes, Past Week"},
+  "features": [
+    {
+      "type": "Feature",
+      "id": "us7000abcd",
+      "properties": {"mag": 6.4, "place": "south of the Fiji Islands",
+        "time": 1751500000000, "type": "earthquake"},
+      "geometry": {"type": "Point", "coordinates": [178.1, -24.7, 560.0]}
+    },
+    {
+      "type": "Feature",
+      "id": "us7000efgh",
+      "properties": {"mag": 5.9, "place": "Hormuz region",
+        "time": 1751400000000, "type": "earthquake"},
+      "geometry": {"type": "Point", "coordinates": [56.2, 26.9, 10.0]}
+    }
+  ]
+}

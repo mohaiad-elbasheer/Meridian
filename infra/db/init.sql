@@ -24,6 +24,14 @@ CREATE TABLE IF NOT EXISTS port_daily (
 );
 SELECT create_hypertable('port_daily', 'date', if_not_exists => TRUE);
 
+CREATE TABLE IF NOT EXISTS scenarios (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  spec JSONB NOT NULL,           -- engine ScenarioSpec, validated by the API
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS geo_events (
   id TEXT PRIMARY KEY,
   source TEXT NOT NULL,          -- gdelt | usgs | gdacs
