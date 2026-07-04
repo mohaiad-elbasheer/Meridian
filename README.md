@@ -14,6 +14,17 @@ pytest engine/tests -q
 uvicorn meridian_api.main:app --reload   # after: pip install -e ./api
 ```
 
+## Prototype (full loop, no external data needed)
+Runs on a clearly-labeled synthetic baseline seed until PortWatch data is ingested.
+```bash
+pip install -e ./engine[dev] -e ./api[dev]
+uvicorn meridian_api.main:app --port 8000 &
+cd web && npm install && npm run dev        # open http://localhost:5173
+```
+Pick a chokepoint, set a capacity reduction and duration, run — the panel shows
+rerouted/delayed volume (metric tons), added transit days, country import exposure,
+and the FCM-modulated indices with provenance warnings.
+
 ## Ingestion (P0)
 ```bash
 cp .env.example .env                              # then verify the pinned PortWatch URLs:

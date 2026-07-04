@@ -1,0 +1,126 @@
+{
+  "name": "synthetic_seed_v0",
+  "synthetic": true,
+  "_note": "SYNTHETIC development seed: plausible orders of magnitude for demo/tests only. NOT PortWatch data and NOT calibrated. Replaced by baselines computed from ingested PortWatch history (P0 ingestion) as soon as data is flowing. Every consumer must surface this flag.",
+  "chokepoints": [
+    {
+      "id": "suez_canal", "label": "Suez Canal", "lat": 30.45, "lon": 32.35,
+      "baseline_daily_calls": 50, "baseline_daily_tons": 4500000, "headroom": 0.1,
+      "alt_routes": [{"via": "cape_of_good_hope", "added_days": 9.5}],
+      "import_dependencies": [
+        {"country": "EGY", "share": 0.45}, {"country": "ITA", "share": 0.3},
+        {"country": "GRC", "share": 0.33}, {"country": "NLD", "share": 0.22},
+        {"country": "DEU", "share": 0.2}
+      ]
+    },
+    {
+      "id": "bab_el_mandeb", "label": "Bab el-Mandeb Strait", "lat": 12.6, "lon": 43.4,
+      "baseline_daily_calls": 55, "baseline_daily_tons": 4200000, "headroom": 0.1,
+      "alt_routes": [{"via": "cape_of_good_hope", "added_days": 8.5}],
+      "import_dependencies": [
+        {"country": "EGY", "share": 0.4}, {"country": "SAU", "share": 0.25},
+        {"country": "ITA", "share": 0.22}
+      ]
+    },
+    {
+      "id": "strait_of_hormuz", "label": "Strait of Hormuz", "lat": 26.6, "lon": 56.5,
+      "baseline_daily_calls": 80, "baseline_daily_tons": 5500000, "headroom": 0.1,
+      "alt_routes": [],
+      "import_dependencies": [
+        {"country": "JPN", "share": 0.72}, {"country": "KOR", "share": 0.65},
+        {"country": "IND", "share": 0.45}, {"country": "CHN", "share": 0.4}
+      ]
+    },
+    {
+      "id": "strait_of_malacca", "label": "Strait of Malacca", "lat": 2.5, "lon": 101.0,
+      "baseline_daily_calls": 200, "baseline_daily_tons": 8000000, "headroom": 0.15,
+      "alt_routes": [
+        {"via": "sunda_strait", "added_days": 1.5},
+        {"via": "lombok_strait", "added_days": 3.0}
+      ],
+      "import_dependencies": [
+        {"country": "SGP", "share": 0.85}, {"country": "CHN", "share": 0.55},
+        {"country": "JPN", "share": 0.5}, {"country": "KOR", "share": 0.48}
+      ]
+    },
+    {
+      "id": "panama_canal", "label": "Panama Canal", "lat": 9.1, "lon": -79.7,
+      "baseline_daily_calls": 35, "baseline_daily_tons": 1100000, "headroom": 0.1,
+      "alt_routes": [{"via": "strait_of_magellan", "added_days": 14.0}],
+      "import_dependencies": [
+        {"country": "USA", "share": 0.14}, {"country": "CHL", "share": 0.3},
+        {"country": "PER", "share": 0.27}, {"country": "ECU", "share": 0.28}
+      ]
+    },
+    {
+      "id": "strait_of_gibraltar", "label": "Strait of Gibraltar", "lat": 35.95, "lon": -5.6,
+      "baseline_daily_calls": 100, "baseline_daily_tons": 3500000, "headroom": 0.2,
+      "alt_routes": [],
+      "import_dependencies": [
+        {"country": "ESP", "share": 0.35}, {"country": "ITA", "share": 0.3},
+        {"country": "MAR", "share": 0.4}
+      ]
+    },
+    {
+      "id": "bosporus_strait", "label": "Bosporus Strait", "lat": 41.1, "lon": 29.05,
+      "baseline_daily_calls": 40, "baseline_daily_tons": 1300000, "headroom": 0.1,
+      "alt_routes": [],
+      "import_dependencies": [
+        {"country": "UKR", "share": 0.55}, {"country": "ROU", "share": 0.42},
+        {"country": "BGR", "share": 0.45}, {"country": "TUR", "share": 0.3}
+      ]
+    },
+    {
+      "id": "taiwan_strait", "label": "Taiwan Strait", "lat": 24.5, "lon": 119.5,
+      "baseline_daily_calls": 120, "baseline_daily_tons": 6000000, "headroom": 0.15,
+      "alt_routes": [{"via": "luzon_strait", "added_days": 1.0}],
+      "import_dependencies": [
+        {"country": "TWN", "share": 0.7}, {"country": "JPN", "share": 0.35},
+        {"country": "KOR", "share": 0.3}
+      ]
+    },
+    {
+      "id": "cape_of_good_hope", "label": "Cape of Good Hope", "lat": -34.35, "lon": 18.5,
+      "baseline_daily_calls": 90, "baseline_daily_tons": 4800000, "headroom": 0.5,
+      "alt_routes": [], "import_dependencies": [{"country": "ZAF", "share": 0.3}]
+    },
+    {
+      "id": "strait_of_magellan", "label": "Strait of Magellan", "lat": -53.5, "lon": -70.8,
+      "baseline_daily_calls": 5, "baseline_daily_tons": 120000, "headroom": 2.0,
+      "alt_routes": [], "import_dependencies": []
+    },
+    {
+      "id": "sunda_strait", "label": "Sunda Strait", "lat": -5.9, "lon": 105.9,
+      "baseline_daily_calls": 30, "baseline_daily_tons": 1200000, "headroom": 0.6,
+      "alt_routes": [], "import_dependencies": [{"country": "IDN", "share": 0.25}]
+    },
+    {
+      "id": "lombok_strait", "label": "Lombok Strait", "lat": -8.75, "lon": 115.75,
+      "baseline_daily_calls": 20, "baseline_daily_tons": 800000, "headroom": 0.6,
+      "alt_routes": [], "import_dependencies": [{"country": "IDN", "share": 0.15}]
+    },
+    {
+      "id": "luzon_strait", "label": "Luzon Strait", "lat": 20.8, "lon": 121.0,
+      "baseline_daily_calls": 40, "baseline_daily_tons": 2000000, "headroom": 0.5,
+      "alt_routes": [], "import_dependencies": [{"country": "PHL", "share": 0.2}]
+    }
+  ],
+  "ports": [
+    {"id": "port_shanghai", "label": "Shanghai", "lat": 31.23, "lon": 121.49, "baseline_daily_calls": 130, "baseline_daily_tons": 2100000},
+    {"id": "port_singapore", "label": "Singapore", "lat": 1.26, "lon": 103.84, "baseline_daily_calls": 140, "baseline_daily_tons": 1700000},
+    {"id": "port_ningbo", "label": "Ningbo-Zhoushan", "lat": 29.87, "lon": 121.55, "baseline_daily_calls": 95, "baseline_daily_tons": 3200000},
+    {"id": "port_rotterdam", "label": "Rotterdam", "lat": 51.95, "lon": 4.14, "baseline_daily_calls": 61, "baseline_daily_tons": 1200000},
+    {"id": "port_busan", "label": "Busan", "lat": 35.1, "lon": 129.04, "baseline_daily_calls": 65, "baseline_daily_tons": 950000},
+    {"id": "port_antwerp", "label": "Antwerp-Bruges", "lat": 51.28, "lon": 4.34, "baseline_daily_calls": 40, "baseline_daily_tons": 640000},
+    {"id": "port_losangeles", "label": "Los Angeles / Long Beach", "lat": 33.73, "lon": -118.26, "baseline_daily_calls": 30, "baseline_daily_tons": 780000},
+    {"id": "port_hamburg", "label": "Hamburg", "lat": 53.53, "lon": 9.93, "baseline_daily_calls": 25, "baseline_daily_tons": 350000},
+    {"id": "port_jebelali", "label": "Jebel Ali (Dubai)", "lat": 25.01, "lon": 55.06, "baseline_daily_calls": 35, "baseline_daily_tons": 480000},
+    {"id": "port_piraeus", "label": "Piraeus", "lat": 37.94, "lon": 23.62, "baseline_daily_calls": 18, "baseline_daily_tons": 210000},
+    {"id": "port_said", "label": "Port Said", "lat": 31.25, "lon": 32.3, "baseline_daily_calls": 20, "baseline_daily_tons": 260000},
+    {"id": "port_jeddah", "label": "Jeddah", "lat": 21.48, "lon": 39.16, "baseline_daily_calls": 16, "baseline_daily_tons": 190000},
+    {"id": "port_colombo", "label": "Colombo", "lat": 6.95, "lon": 79.84, "baseline_daily_calls": 15, "baseline_daily_tons": 180000},
+    {"id": "port_santos", "label": "Santos", "lat": -23.98, "lon": -46.29, "baseline_daily_calls": 14, "baseline_daily_tons": 330000},
+    {"id": "port_tanjungpelepas", "label": "Tanjung Pelepas", "lat": 1.36, "lon": 103.55, "baseline_daily_calls": 15, "baseline_daily_tons": 240000},
+    {"id": "port_kaohsiung", "label": "Kaohsiung", "lat": 22.61, "lon": 120.27, "baseline_daily_calls": 24, "baseline_daily_tons": 310000}
+  ]
+}
