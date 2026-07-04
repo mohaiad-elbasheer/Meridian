@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Codespaces / devcontainer bootstrap: install all packages, prepare .env.
+# The universal image ships python, node, and docker — no devcontainer features
+# needed (feature installs were the failure point of the previous config).
 set -euo pipefail
 
-pip install -e ./engine[dev] -e ./api[dev] -e ./ingestion[dev]
+python -m pip install -e "./engine[dev]" -e "./api[dev]" -e "./ingestion[dev]"
 (cd web && npm install)
 
 if [ ! -f .env ]; then
