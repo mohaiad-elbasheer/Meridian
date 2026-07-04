@@ -1,5 +1,33 @@
-import type { Baseline, NetworkNode, ScenarioResult } from "./api";
+import type { Baseline, NetworkNode, ScenarioResult, SourcesStatus } from "./api";
 import { days, factor, pct, tons } from "./format";
+
+const TABLE_LABELS: Record<string, string> = {
+  chokepoint_daily: "PortWatch chokepoints",
+  port_daily: "PortWatch ports",
+  geo_events: "GDELT / USGS / GDACS",
+};
+
+export function Sources({ status }: { status: SourcesStatus | null }) {
+  return (
+    <section>
+      <h2>Data sources</h2>
+      {!status || !status.database.reachable ? (
+        <div className="empty">
+          database unreachable — serving bundled baselines
+        </div>
+      ) : (
+        Object.entries(status.tables).map(([table, t]) => (
+          <div className="kv" key={table}>
+            <span className="k">{TABLE_LABELS[table] ?? table}</span>
+            <span className="v">
+              {t.rows > 0 ? `${t.rows} rows · to ${t.latest}` : "no data yet"}
+            </span>
+          </div>
+        ))
+      )}
+    </section>
+  );
+}
 
 interface ControlsProps {
   chokepoints: NetworkNode[];

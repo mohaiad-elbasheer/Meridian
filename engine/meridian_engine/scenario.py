@@ -87,6 +87,7 @@ def run_scenario(fcm_spec: FCMSpec, graph: nx.DiGraph, scenario: ScenarioSpec) -
         warnings.append(
             f"baselines: {graph.graph.get('source', 'unknown')} — synthetic development seed, "
             "not PortWatch data")
+    warnings.extend(graph.graph.get("data_warnings", []))
 
     return ScenarioResult(
         scenario=scenario,

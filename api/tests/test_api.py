@@ -1,8 +1,20 @@
+import pytest
 from fastapi.testclient import TestClient
 
-from meridian_api.main import app
+from meridian_api import main
 
-client = TestClient(app)
+client = TestClient(main.app)
+
+
+@pytest.fixture(autouse=True)
+def synthetic_fallback(monkeypatch):
+    """Point the API at a dead DB so tests exercise the deterministic synthetic path."""
+    monkeypatch.setenv("DATABASE_URL", "postgresql://x:x@127.0.0.1:9/x?connect_timeout=1")
+    main._settings.cache_clear()
+    main._graph_cache = None
+    yield
+    main._settings.cache_clear()
+    main._graph_cache = None
 
 
 def test_health():
@@ -10,7 +22,7 @@ def test_health():
 
 
 def test_network_baseline_flags_synthetic():
-    body = client.get("/network/baseline").json()
+    body = client.get("/network/baseline?refresh=true").json()
     assert body["synthetic"] is True
     ids = {n["id"] for n in body["nodes"]}
     assert "suez_canal" in ids and "port_rotterdam" in ids
@@ -19,6 +31,7 @@ def test_network_baseline_flags_synthetic():
 
 
 def test_scenario_simulate_suez():
+    client.get("/network/baseline?refresh=true")
     r = client.post("/scenario/simulate", json={
         "target_chokepoint_id": "suez_canal",
         "capacity_reduction": 0.8,
@@ -32,6 +45,7 @@ def test_scenario_simulate_suez():
 
 
 def test_scenario_simulate_unknown_chokepoint_is_422():
+    client.get("/network/baseline?refresh=true")
     r = client.post("/scenario/simulate", json={
         "target_chokepoint_id": "atlantis",
         "capacity_reduction": 0.5,
@@ -44,3 +58,9 @@ def test_fcm_map_served():
     body = client.get("/fcm/map").json()
     assert body["name"] == "macro_v0"
     assert len(body["concepts"]) == 12
+
+
+def test_sources_status_degrades_gracefully():
+    body = client.get("/sources/status").json()
+    assert body["database"]["reachable"] is False
+    assert "error" in body["database"]

@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  fetchBaseline, simulateScenario,
-  type Baseline, type ScenarioResult, type ScenarioSpec,
+  fetchBaseline, fetchSourcesStatus, simulateScenario,
+  type Baseline, type ScenarioResult, type ScenarioSpec, type SourcesStatus,
 } from "./api";
 import { MapView } from "./MapView";
-import { Results, ScenarioControls } from "./Panel";
+import { Results, ScenarioControls, Sources } from "./Panel";
 
 export function App() {
   const [baseline, setBaseline] = useState<Baseline | null>(null);
@@ -15,9 +15,11 @@ export function App() {
   const [result, setResult] = useState<ScenarioResult | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sources, setSources] = useState<SourcesStatus | null>(null);
 
   useEffect(() => {
     fetchBaseline().then(setBaseline).catch((e: Error) => setError(e.message));
+    fetchSourcesStatus().then(setSources).catch(() => setSources(null));
   }, []);
 
   const chokepoints = useMemo(
@@ -53,7 +55,12 @@ export function App() {
         <span className="wordmark"><span>◈</span> MERIDIAN</span>
         <span className="tagline">near-real-time signals · daily-resolution flows</span>
         <span className="spacer" />
-        {baseline?.synthetic && <span className="flag">synthetic seed</span>}
+        {baseline &&
+          (baseline.synthetic ? (
+            <span className="flag" title={baseline.source}>synthetic seed</span>
+          ) : (
+            <span className="flag neutral" title={baseline.source}>portwatch baselines</span>
+          ))}
         <span className="flag neutral">macro v0</span>
       </header>
       <div className="body">
@@ -101,6 +108,7 @@ export function App() {
               </section>
             )
           )}
+          <Sources status={sources} />
         </aside>
       </div>
     </div>

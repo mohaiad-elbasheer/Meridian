@@ -22,8 +22,14 @@ export interface NetworkEdge {
 export interface Baseline {
   source: string;
   synthetic: boolean;
+  data_warnings: string[];
   nodes: NetworkNode[];
   edges: NetworkEdge[];
+}
+
+export interface SourcesStatus {
+  database: { reachable: boolean; error?: string };
+  tables: Record<string, { rows: number; latest: string | null; distinct: number }>;
 }
 
 export interface Clamp {
@@ -89,6 +95,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export function fetchBaseline(): Promise<Baseline> {
   return request<Baseline>("/network/baseline");
+}
+
+export function fetchSourcesStatus(): Promise<SourcesStatus> {
+  return request<SourcesStatus>("/sources/status");
 }
 
 export function simulateScenario(spec: ScenarioSpec): Promise<ScenarioResult> {
