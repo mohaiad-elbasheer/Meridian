@@ -1,0 +1,648 @@
+{
+ "source": "synthetic_seed_v0",
+ "synthetic": true,
+ "data_warnings": [],
+ "nodes": [
+  {
+   "id": "suez_canal",
+   "type": "chokepoint",
+   "label": "Suez Canal",
+   "lat": 30.45,
+   "lon": 32.35,
+   "baseline_daily_calls": 50.0,
+   "baseline_daily_tons": 4500000.0,
+   "capacity_daily_tons": 4950000.0
+  },
+  {
+   "id": "bab_el_mandeb",
+   "type": "chokepoint",
+   "label": "Bab el-Mandeb Strait",
+   "lat": 12.6,
+   "lon": 43.4,
+   "baseline_daily_calls": 55.0,
+   "baseline_daily_tons": 4200000.0,
+   "capacity_daily_tons": 4620000.0
+  },
+  {
+   "id": "strait_of_hormuz",
+   "type": "chokepoint",
+   "label": "Strait of Hormuz",
+   "lat": 26.6,
+   "lon": 56.5,
+   "baseline_daily_calls": 80.0,
+   "baseline_daily_tons": 5500000.0,
+   "capacity_daily_tons": 6050000.000000001
+  },
+  {
+   "id": "strait_of_malacca",
+   "type": "chokepoint",
+   "label": "Strait of Malacca",
+   "lat": 2.5,
+   "lon": 101.0,
+   "baseline_daily_calls": 200.0,
+   "baseline_daily_tons": 8000000.0,
+   "capacity_daily_tons": 9200000.0
+  },
+  {
+   "id": "panama_canal",
+   "type": "chokepoint",
+   "label": "Panama Canal",
+   "lat": 9.1,
+   "lon": -79.7,
+   "baseline_daily_calls": 35.0,
+   "baseline_daily_tons": 1100000.0,
+   "capacity_daily_tons": 1210000.0
+  },
+  {
+   "id": "strait_of_gibraltar",
+   "type": "chokepoint",
+   "label": "Strait of Gibraltar",
+   "lat": 35.95,
+   "lon": -5.6,
+   "baseline_daily_calls": 100.0,
+   "baseline_daily_tons": 3500000.0,
+   "capacity_daily_tons": 4200000.0
+  },
+  {
+   "id": "bosporus_strait",
+   "type": "chokepoint",
+   "label": "Bosporus Strait",
+   "lat": 41.1,
+   "lon": 29.05,
+   "baseline_daily_calls": 40.0,
+   "baseline_daily_tons": 1300000.0,
+   "capacity_daily_tons": 1430000.0
+  },
+  {
+   "id": "taiwan_strait",
+   "type": "chokepoint",
+   "label": "Taiwan Strait",
+   "lat": 24.5,
+   "lon": 119.5,
+   "baseline_daily_calls": 120.0,
+   "baseline_daily_tons": 6000000.0,
+   "capacity_daily_tons": 6899999.999999999
+  },
+  {
+   "id": "cape_of_good_hope",
+   "type": "chokepoint",
+   "label": "Cape of Good Hope",
+   "lat": -34.35,
+   "lon": 18.5,
+   "baseline_daily_calls": 90.0,
+   "baseline_daily_tons": 4800000.0,
+   "capacity_daily_tons": 7200000.0
+  },
+  {
+   "id": "strait_of_magellan",
+   "type": "chokepoint",
+   "label": "Strait of Magellan",
+   "lat": -53.5,
+   "lon": -70.8,
+   "baseline_daily_calls": 5.0,
+   "baseline_daily_tons": 120000.0,
+   "capacity_daily_tons": 360000.0
+  },
+  {
+   "id": "sunda_strait",
+   "type": "chokepoint",
+   "label": "Sunda Strait",
+   "lat": -5.9,
+   "lon": 105.9,
+   "baseline_daily_calls": 30.0,
+   "baseline_daily_tons": 1200000.0,
+   "capacity_daily_tons": 1920000.0
+  },
+  {
+   "id": "lombok_strait",
+   "type": "chokepoint",
+   "label": "Lombok Strait",
+   "lat": -8.75,
+   "lon": 115.75,
+   "baseline_daily_calls": 20.0,
+   "baseline_daily_tons": 800000.0,
+   "capacity_daily_tons": 1280000.0
+  },
+  {
+   "id": "luzon_strait",
+   "type": "chokepoint",
+   "label": "Luzon Strait",
+   "lat": 20.8,
+   "lon": 121.0,
+   "baseline_daily_calls": 40.0,
+   "baseline_daily_tons": 2000000.0,
+   "capacity_daily_tons": 3000000.0
+  },
+  {
+   "id": "EGY",
+   "type": "country",
+   "label": "EGY"
+  },
+  {
+   "id": "ITA",
+   "type": "country",
+   "label": "ITA"
+  },
+  {
+   "id": "GRC",
+   "type": "country",
+   "label": "GRC"
+  },
+  {
+   "id": "NLD",
+   "type": "country",
+   "label": "NLD"
+  },
+  {
+   "id": "DEU",
+   "type": "country",
+   "label": "DEU"
+  },
+  {
+   "id": "SAU",
+   "type": "country",
+   "label": "SAU"
+  },
+  {
+   "id": "JPN",
+   "type": "country",
+   "label": "JPN"
+  },
+  {
+   "id": "KOR",
+   "type": "country",
+   "label": "KOR"
+  },
+  {
+   "id": "IND",
+   "type": "country",
+   "label": "IND"
+  },
+  {
+   "id": "CHN",
+   "type": "country",
+   "label": "CHN"
+  },
+  {
+   "id": "SGP",
+   "type": "country",
+   "label": "SGP"
+  },
+  {
+   "id": "USA",
+   "type": "country",
+   "label": "USA"
+  },
+  {
+   "id": "CHL",
+   "type": "country",
+   "label": "CHL"
+  },
+  {
+   "id": "PER",
+   "type": "country",
+   "label": "PER"
+  },
+  {
+   "id": "ECU",
+   "type": "country",
+   "label": "ECU"
+  },
+  {
+   "id": "ESP",
+   "type": "country",
+   "label": "ESP"
+  },
+  {
+   "id": "MAR",
+   "type": "country",
+   "label": "MAR"
+  },
+  {
+   "id": "UKR",
+   "type": "country",
+   "label": "UKR"
+  },
+  {
+   "id": "ROU",
+   "type": "country",
+   "label": "ROU"
+  },
+  {
+   "id": "BGR",
+   "type": "country",
+   "label": "BGR"
+  },
+  {
+   "id": "TUR",
+   "type": "country",
+   "label": "TUR"
+  },
+  {
+   "id": "TWN",
+   "type": "country",
+   "label": "TWN"
+  },
+  {
+   "id": "ZAF",
+   "type": "country",
+   "label": "ZAF"
+  },
+  {
+   "id": "IDN",
+   "type": "country",
+   "label": "IDN"
+  },
+  {
+   "id": "PHL",
+   "type": "country",
+   "label": "PHL"
+  },
+  {
+   "id": "port_shanghai",
+   "type": "port",
+   "label": "Shanghai",
+   "lat": 31.23,
+   "lon": 121.49,
+   "baseline_daily_calls": 130.0,
+   "baseline_daily_tons": 2100000.0
+  },
+  {
+   "id": "port_singapore",
+   "type": "port",
+   "label": "Singapore",
+   "lat": 1.26,
+   "lon": 103.84,
+   "baseline_daily_calls": 140.0,
+   "baseline_daily_tons": 1700000.0
+  },
+  {
+   "id": "port_ningbo",
+   "type": "port",
+   "label": "Ningbo-Zhoushan",
+   "lat": 29.87,
+   "lon": 121.55,
+   "baseline_daily_calls": 95.0,
+   "baseline_daily_tons": 3200000.0
+  },
+  {
+   "id": "port_rotterdam",
+   "type": "port",
+   "label": "Rotterdam",
+   "lat": 51.95,
+   "lon": 4.14,
+   "baseline_daily_calls": 61.0,
+   "baseline_daily_tons": 1200000.0
+  },
+  {
+   "id": "port_busan",
+   "type": "port",
+   "label": "Busan",
+   "lat": 35.1,
+   "lon": 129.04,
+   "baseline_daily_calls": 65.0,
+   "baseline_daily_tons": 950000.0
+  },
+  {
+   "id": "port_antwerp",
+   "type": "port",
+   "label": "Antwerp-Bruges",
+   "lat": 51.28,
+   "lon": 4.34,
+   "baseline_daily_calls": 40.0,
+   "baseline_daily_tons": 640000.0
+  },
+  {
+   "id": "port_losangeles",
+   "type": "port",
+   "label": "Los Angeles / Long Beach",
+   "lat": 33.73,
+   "lon": -118.26,
+   "baseline_daily_calls": 30.0,
+   "baseline_daily_tons": 780000.0
+  },
+  {
+   "id": "port_hamburg",
+   "type": "port",
+   "label": "Hamburg",
+   "lat": 53.53,
+   "lon": 9.93,
+   "baseline_daily_calls": 25.0,
+   "baseline_daily_tons": 350000.0
+  },
+  {
+   "id": "port_jebelali",
+   "type": "port",
+   "label": "Jebel Ali (Dubai)",
+   "lat": 25.01,
+   "lon": 55.06,
+   "baseline_daily_calls": 35.0,
+   "baseline_daily_tons": 480000.0
+  },
+  {
+   "id": "port_piraeus",
+   "type": "port",
+   "label": "Piraeus",
+   "lat": 37.94,
+   "lon": 23.62,
+   "baseline_daily_calls": 18.0,
+   "baseline_daily_tons": 210000.0
+  },
+  {
+   "id": "port_said",
+   "type": "port",
+   "label": "Port Said",
+   "lat": 31.25,
+   "lon": 32.3,
+   "baseline_daily_calls": 20.0,
+   "baseline_daily_tons": 260000.0
+  },
+  {
+   "id": "port_jeddah",
+   "type": "port",
+   "label": "Jeddah",
+   "lat": 21.48,
+   "lon": 39.16,
+   "baseline_daily_calls": 16.0,
+   "baseline_daily_tons": 190000.0
+  },
+  {
+   "id": "port_colombo",
+   "type": "port",
+   "label": "Colombo",
+   "lat": 6.95,
+   "lon": 79.84,
+   "baseline_daily_calls": 15.0,
+   "baseline_daily_tons": 180000.0
+  },
+  {
+   "id": "port_santos",
+   "type": "port",
+   "label": "Santos",
+   "lat": -23.98,
+   "lon": -46.29,
+   "baseline_daily_calls": 14.0,
+   "baseline_daily_tons": 330000.0
+  },
+  {
+   "id": "port_tanjungpelepas",
+   "type": "port",
+   "label": "Tanjung Pelepas",
+   "lat": 1.36,
+   "lon": 103.55,
+   "baseline_daily_calls": 15.0,
+   "baseline_daily_tons": 240000.0
+  },
+  {
+   "id": "port_kaohsiung",
+   "type": "port",
+   "label": "Kaohsiung",
+   "lat": 22.61,
+   "lon": 120.27,
+   "baseline_daily_calls": 24.0,
+   "baseline_daily_tons": 310000.0
+  }
+ ],
+ "edges": [
+  {
+   "source": "suez_canal",
+   "target": "cape_of_good_hope",
+   "kind": "alt_route",
+   "added_days": 9.5
+  },
+  {
+   "source": "suez_canal",
+   "target": "EGY",
+   "kind": "import_share",
+   "share": 0.45
+  },
+  {
+   "source": "suez_canal",
+   "target": "ITA",
+   "kind": "import_share",
+   "share": 0.3
+  },
+  {
+   "source": "suez_canal",
+   "target": "GRC",
+   "kind": "import_share",
+   "share": 0.33
+  },
+  {
+   "source": "suez_canal",
+   "target": "NLD",
+   "kind": "import_share",
+   "share": 0.22
+  },
+  {
+   "source": "suez_canal",
+   "target": "DEU",
+   "kind": "import_share",
+   "share": 0.2
+  },
+  {
+   "source": "bab_el_mandeb",
+   "target": "cape_of_good_hope",
+   "kind": "alt_route",
+   "added_days": 8.5
+  },
+  {
+   "source": "bab_el_mandeb",
+   "target": "EGY",
+   "kind": "import_share",
+   "share": 0.4
+  },
+  {
+   "source": "bab_el_mandeb",
+   "target": "SAU",
+   "kind": "import_share",
+   "share": 0.25
+  },
+  {
+   "source": "bab_el_mandeb",
+   "target": "ITA",
+   "kind": "import_share",
+   "share": 0.22
+  },
+  {
+   "source": "strait_of_hormuz",
+   "target": "JPN",
+   "kind": "import_share",
+   "share": 0.72
+  },
+  {
+   "source": "strait_of_hormuz",
+   "target": "KOR",
+   "kind": "import_share",
+   "share": 0.65
+  },
+  {
+   "source": "strait_of_hormuz",
+   "target": "IND",
+   "kind": "import_share",
+   "share": 0.45
+  },
+  {
+   "source": "strait_of_hormuz",
+   "target": "CHN",
+   "kind": "import_share",
+   "share": 0.4
+  },
+  {
+   "source": "strait_of_malacca",
+   "target": "sunda_strait",
+   "kind": "alt_route",
+   "added_days": 1.5
+  },
+  {
+   "source": "strait_of_malacca",
+   "target": "lombok_strait",
+   "kind": "alt_route",
+   "added_days": 3.0
+  },
+  {
+   "source": "strait_of_malacca",
+   "target": "SGP",
+   "kind": "import_share",
+   "share": 0.85
+  },
+  {
+   "source": "strait_of_malacca",
+   "target": "CHN",
+   "kind": "import_share",
+   "share": 0.55
+  },
+  {
+   "source": "strait_of_malacca",
+   "target": "JPN",
+   "kind": "import_share",
+   "share": 0.5
+  },
+  {
+   "source": "strait_of_malacca",
+   "target": "KOR",
+   "kind": "import_share",
+   "share": 0.48
+  },
+  {
+   "source": "panama_canal",
+   "target": "strait_of_magellan",
+   "kind": "alt_route",
+   "added_days": 14.0
+  },
+  {
+   "source": "panama_canal",
+   "target": "USA",
+   "kind": "import_share",
+   "share": 0.14
+  },
+  {
+   "source": "panama_canal",
+   "target": "CHL",
+   "kind": "import_share",
+   "share": 0.3
+  },
+  {
+   "source": "panama_canal",
+   "target": "PER",
+   "kind": "import_share",
+   "share": 0.27
+  },
+  {
+   "source": "panama_canal",
+   "target": "ECU",
+   "kind": "import_share",
+   "share": 0.28
+  },
+  {
+   "source": "strait_of_gibraltar",
+   "target": "ESP",
+   "kind": "import_share",
+   "share": 0.35
+  },
+  {
+   "source": "strait_of_gibraltar",
+   "target": "ITA",
+   "kind": "import_share",
+   "share": 0.3
+  },
+  {
+   "source": "strait_of_gibraltar",
+   "target": "MAR",
+   "kind": "import_share",
+   "share": 0.4
+  },
+  {
+   "source": "bosporus_strait",
+   "target": "UKR",
+   "kind": "import_share",
+   "share": 0.55
+  },
+  {
+   "source": "bosporus_strait",
+   "target": "ROU",
+   "kind": "import_share",
+   "share": 0.42
+  },
+  {
+   "source": "bosporus_strait",
+   "target": "BGR",
+   "kind": "import_share",
+   "share": 0.45
+  },
+  {
+   "source": "bosporus_strait",
+   "target": "TUR",
+   "kind": "import_share",
+   "share": 0.3
+  },
+  {
+   "source": "taiwan_strait",
+   "target": "luzon_strait",
+   "kind": "alt_route",
+   "added_days": 1.0
+  },
+  {
+   "source": "taiwan_strait",
+   "target": "TWN",
+   "kind": "import_share",
+   "share": 0.7
+  },
+  {
+   "source": "taiwan_strait",
+   "target": "JPN",
+   "kind": "import_share",
+   "share": 0.35
+  },
+  {
+   "source": "taiwan_strait",
+   "target": "KOR",
+   "kind": "import_share",
+   "share": 0.3
+  },
+  {
+   "source": "cape_of_good_hope",
+   "target": "ZAF",
+   "kind": "import_share",
+   "share": 0.3
+  },
+  {
+   "source": "sunda_strait",
+   "target": "IDN",
+   "kind": "import_share",
+   "share": 0.25
+  },
+  {
+   "source": "lombok_strait",
+   "target": "IDN",
+   "kind": "import_share",
+   "share": 0.15
+  },
+  {
+   "source": "luzon_strait",
+   "target": "PHL",
+   "kind": "import_share",
+   "share": 0.2
+  }
+ ]
+}
