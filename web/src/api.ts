@@ -1,4 +1,12 @@
 // Typed client for the Meridian API (proxied under /api in dev, see vite.config.ts).
+// With VITE_DEMO=1 (GitHub Pages build) every call is served by the in-browser demo
+// implementation instead — the demo chunk is tree-shaken out of normal builds.
+
+export const IS_DEMO = import.meta.env.VITE_DEMO === "1";
+
+function demoApi() {
+  return import("./demo/api");
+}
 
 export interface NetworkNode {
   id: string;
@@ -93,11 +101,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await res.json()) as T;
 }
 
-export function fetchBaseline(): Promise<Baseline> {
+export async function fetchBaseline(): Promise<Baseline> {
+  if (IS_DEMO) return (await demoApi()).fetchBaseline();
   return request<Baseline>("/network/baseline");
 }
 
-export function fetchSourcesStatus(): Promise<SourcesStatus> {
+export async function fetchSourcesStatus(): Promise<SourcesStatus> {
+  if (IS_DEMO) return (await demoApi()).fetchSourcesStatus();
   return request<SourcesStatus>("/sources/status");
 }
 
@@ -109,11 +119,13 @@ export interface SavedScenario {
   updated_at: string;
 }
 
-export function listScenarios(): Promise<SavedScenario[]> {
+export async function listScenarios(): Promise<SavedScenario[]> {
+  if (IS_DEMO) return (await demoApi()).listScenarios();
   return request<SavedScenario[]>("/scenarios");
 }
 
-export function saveScenario(name: string, spec: ScenarioSpec): Promise<SavedScenario> {
+export async function saveScenario(name: string, spec: ScenarioSpec): Promise<SavedScenario> {
+  if (IS_DEMO) return (await demoApi()).saveScenario(name, spec);
   return request<SavedScenario>("/scenarios", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -121,7 +133,8 @@ export function saveScenario(name: string, spec: ScenarioSpec): Promise<SavedSce
   });
 }
 
-export function deleteScenario(id: string): Promise<void> {
+export async function deleteScenario(id: string): Promise<void> {
+  if (IS_DEMO) return (await demoApi()).deleteScenario(id);
   return fetch(`/api/scenarios/${id}`, { method: "DELETE" }).then(() => undefined);
 }
 
@@ -144,11 +157,13 @@ export interface FcmMap {
   edges: FcmEdge[];
 }
 
-export function fetchFcmMap(): Promise<FcmMap> {
+export async function fetchFcmMap(): Promise<FcmMap> {
+  if (IS_DEMO) return (await demoApi()).fetchFcmMap();
   return request<FcmMap>("/fcm/map");
 }
 
-export function simulateScenario(spec: ScenarioSpec): Promise<ScenarioResult> {
+export async function simulateScenario(spec: ScenarioSpec): Promise<ScenarioResult> {
+  if (IS_DEMO) return (await demoApi()).simulateScenario(spec);
   return request<ScenarioResult>("/scenario/simulate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

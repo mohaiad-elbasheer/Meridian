@@ -39,9 +39,20 @@ Every push to a PR runs GitHub Actions (`.github/workflows/ci.yml`): engine,
 ingestion, and API test suites plus the production web build. Green checks on the
 PR mean the code paths work; Codespaces is for *interactive* testing.
 
-## Public hosting (later, P4)
+## GitHub Pages static demo (live)
 
-Permanent public hosting is planned on OCI Always-Free (Docker Compose + Caddy TLS,
-see `infra/oci/DEPLOY.md`), not GitHub — GitHub has no free long-running server
-hosting. A limited **static demo** on GitHub Pages (pre-computed scenario results,
-no live engine) is possible if a shareable teaser is wanted before P4 — ask for it.
+`.github/workflows/pages.yml` deploys a **static demo** to GitHub Pages on every
+push to `main`: https://mohaiad-elbasheer.github.io/Meridian/
+
+The demo runs a TypeScript port of the engine *in the browser* on the bundled
+synthetic seed; scenario saves go to localStorage. It is clearly labeled ("STATIC
+DEMO") and a parity test (`web/src/demo/engine.parity.test.ts`, run in CI and
+before every deploy) guarantees its numbers match the Python engine exactly. When
+the Python engine changes, regenerate fixtures with `python tools/gen_demo_data.py`
+and keep `web/src/demo/engine.ts` in sync — the parity test fails loudly otherwise.
+
+## Public hosting of the full platform (later, P4)
+
+Permanent hosting of the real stack (live data, database) is planned on OCI
+Always-Free (Docker Compose + Caddy TLS, see `infra/oci/DEPLOY.md`), not GitHub —
+GitHub has no free long-running server hosting.

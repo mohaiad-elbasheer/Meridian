@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  IS_DEMO,
   deleteScenario, fetchBaseline, fetchSourcesStatus, listScenarios, saveScenario,
   simulateScenario,
   type Baseline, type SavedScenario, type ScenarioResult, type ScenarioSpec,
@@ -85,6 +86,7 @@ export function App() {
           </button>
         </div>
         <span className="spacer" />
+        {IS_DEMO && <span className="flag">static demo</span>}
         {baseline &&
           (baseline.synthetic ? (
             <span className="flag" title={baseline.source}>synthetic seed</span>
