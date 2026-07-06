@@ -141,6 +141,84 @@ button.run:disabled { opacity: 0.45; cursor: default; }
 
 .empty { color: var(--ink-3); font-size: 12px; }
 
+/* ---- monitoring view ---- */
+.monitoring {
+  flex: 1; display: grid; grid-template-columns: 1fr 380px; gap: 0;
+  overflow-y: auto; min-height: 0; align-items: start;
+}
+.mon-section { padding: 16px 20px; }
+.mon-section h2 {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink-3); margin-bottom: 12px;
+}
+.mon-side { border-left: 1px solid var(--border); background: var(--surface); min-height: 100%; }
+.mon-side section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.mon-side h2 {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px;
+}
+.cp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 10px; }
+.cp-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 3px;
+  padding: 12px 14px;
+}
+.cp-head { display: flex; justify-content: space-between; align-items: baseline; }
+.cp-name { font-size: 13.5px; font-weight: 600; }
+.cp-sim {
+  background: none; border: none; color: var(--accent); cursor: pointer;
+  font-family: var(--sans); font-size: 11.5px;
+}
+.cp-base { color: var(--ink-2); font-size: 12px; margin: 4px 0 8px; }
+.cp-base .mono { font-family: var(--mono); color: var(--ink); }
+.cp-noseries { color: var(--ink-3); font-size: 11px; margin-top: 8px; }
+.classmix svg { width: 100%; height: 8px; display: block; border-radius: 2px; }
+.classmix-legend { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 5px;
+  font-size: 10.5px; color: var(--ink-3); }
+.classmix-legend .sw {
+  display: inline-block; width: 8px; height: 8px; border-radius: 2px;
+  background: var(--ink-3); margin-right: 4px; vertical-align: -1px;
+}
+.classmix-legend .sw.accent { background: var(--accent); opacity: 0.9; }
+.spark { margin-top: 10px; }
+.spark svg { width: 100%; height: 44px; display: block; }
+.spark-caption { font-size: 10.5px; color: var(--ink-3); margin-top: 2px; }
+.spark-caption .mono { font-family: var(--mono); color: var(--ink-2); }
+button.csv {
+  margin-top: 8px; padding: 3px 10px; background: none;
+  border: 1px solid var(--border); color: var(--ink-2); border-radius: 3px;
+  cursor: pointer; font-size: 11px; font-family: var(--sans);
+}
+button.csv:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ---- map legend ---- */
+.map-legend {
+  position: absolute; left: 10px; bottom: 26px; z-index: 6; width: 210px;
+  background: rgba(17, 21, 29, 0.92); border: 1px solid var(--border);
+  border-radius: 3px; padding: 9px 11px; font-size: 11px; color: var(--ink-2);
+}
+.map-legend .head {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 6px;
+}
+.map-legend .head button {
+  width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--ink-3);
+  background: none; color: var(--ink-3); font-family: var(--mono); font-size: 9px;
+  line-height: 1; cursor: pointer;
+}
+.map-legend .head button:hover { border-color: var(--accent); color: var(--accent); }
+.map-legend .row { display: flex; align-items: center; gap: 7px; padding: 1.5px 0; }
+.map-legend .dot { width: 9px; height: 9px; border-radius: 50%; background: #7f8ea3; }
+.map-legend .dot.sel { background: var(--accent); }
+.map-legend .dot.port { width: 6px; height: 6px; background: #424e60; }
+.map-legend .arc { width: 14px; height: 3px; border-radius: 2px; background: var(--accent); }
+.legend-info {
+  margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
+  line-height: 1.5; cursor: pointer; color: var(--ink-2);
+}
+.info-pop-up { top: auto; bottom: 20px; }
+.view-toggle.primary button { font-weight: 600; }
+
 /* ---- builder v2 ---- */
 .mode-switch { float: right; display: inline-flex; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
 .mode-switch button {

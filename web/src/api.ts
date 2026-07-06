@@ -175,6 +175,43 @@ export async function fetchSignals(): Promise<SignalsResponse> {
   return request<SignalsResponse>("/signals/chokepoints");
 }
 
+export interface SeriesPoint {
+  date: string;
+  transit_calls: number | null;
+  trade_tons: number | null;
+}
+
+export interface SeriesResponse {
+  available: boolean;
+  chokepoint_id?: string;
+  label?: string;
+  days?: number;
+  points: SeriesPoint[];
+}
+
+export async function fetchTimeseries(chokepointId: string, days = 90): Promise<SeriesResponse> {
+  if (IS_DEMO) return { available: false, points: [] };
+  return request<SeriesResponse>(`/timeseries/chokepoints/${chokepointId}?days=${days}`);
+}
+
+export interface TradePartner {
+  partner: string;
+  import_usd: number;
+  share: number;
+}
+
+export interface TradeDependencies {
+  available: boolean;
+  year?: number;
+  source?: string;
+  reporters: Record<string, { total_import_usd: number; partners: TradePartner[] }>;
+}
+
+export async function fetchTradeDependencies(): Promise<TradeDependencies> {
+  if (IS_DEMO) return { available: false, reporters: {} };
+  return request<TradeDependencies>("/trade/dependencies");
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`/api${path}`, init);
   if (!res.ok) {
