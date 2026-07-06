@@ -24,6 +24,16 @@ CREATE TABLE IF NOT EXISTS port_daily (
 );
 SELECT create_hypertable('port_daily', 'date', if_not_exists => TRUE);
 
+CREATE TABLE IF NOT EXISTS country_trade (
+  reporter TEXT NOT NULL,        -- ISO3 of importing country
+  partner TEXT NOT NULL,         -- ISO3 of exporting partner (WLD = world total)
+  year INTEGER NOT NULL,
+  import_usd DOUBLE PRECISION,
+  raw JSONB NOT NULL,
+  ingested_at TIMESTAMPTZ DEFAULT now(),
+  PRIMARY KEY (reporter, partner, year)
+);
+
 CREATE TABLE IF NOT EXISTS scenarios (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,

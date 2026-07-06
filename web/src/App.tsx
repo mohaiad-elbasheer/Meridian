@@ -1,26 +1,29 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   IS_DEMO,
-  deleteScenario, fetchBaseline, fetchSourcesStatus, listScenarios, saveScenario,
-  simulateScenario,
-  type Baseline, type SavedScenario, type ScenarioResult, type ScenarioSpec,
-  type SourcesStatus,
+  deleteScenario, fetchBaseline, fetchSignals, fetchSourcesStatus, listScenarios,
+  saveScenario, simulateScenario,
+  type Baseline, type SavedScenario, type ScenarioResult, type SignalsResponse,
+  type SourcesStatus, type VesselClass,
 } from "./api";
+import {
+  buildSpec, initialBuilderValues, ScenarioBuilder, type BuilderValues,
+} from "./Builder";
+import { Dashboard } from "./Dashboard";
 import { FcmCanvas } from "./FcmCanvas";
 import { MapView } from "./MapView";
-import { Results, SavedScenarios, ScenarioControls, Sources } from "./Panel";
+import { SavedScenarios, Signals, Sources } from "./Panel";
 
 export function App() {
   const [view, setView] = useState<"map" | "fcm">("map");
   const [baseline, setBaseline] = useState<Baseline | null>(null);
-  const [targetId, setTargetId] = useState("suez_canal");
-  const [reduction, setReduction] = useState(0.8);
-  const [duration, setDuration] = useState(14);
+  const [builder, setBuilder] = useState<BuilderValues>(initialBuilderValues("suez_canal"));
   const [clamps, setClamps] = useState<Record<string, number>>({});
   const [result, setResult] = useState<ScenarioResult | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sources, setSources] = useState<SourcesStatus | null>(null);
+  const [signals, setSignals] = useState<SignalsResponse | null>(null);
   const [saved, setSaved] = useState<SavedScenario[] | null>(null);
 
   const refreshSaved = useCallback(() => {
@@ -30,6 +33,7 @@ export function App() {
   useEffect(() => {
     fetchBaseline().then(setBaseline).catch((e: Error) => setError(e.message));
     fetchSourcesStatus().then(setSources).catch(() => setSources(null));
+    fetchSignals().then(setSignals).catch(() => setSignals(null));
     refreshSaved();
   }, [refreshSaved]);
 
@@ -41,16 +45,12 @@ export function App() {
     [baseline],
   );
 
-  const spec: ScenarioSpec = useMemo(
-    () => ({
-      name: `${targetId} −${Math.round(reduction * 100)}% for ${duration}d`,
-      target_chokepoint_id: targetId,
-      capacity_reduction: reduction,
-      duration_days: duration,
-      fcm_clamps: Object.entries(clamps).map(([concept_id, value]) => ({ concept_id, value })),
-    }),
-    [targetId, reduction, duration, clamps],
-  );
+  const spec = useMemo(() => buildSpec(builder, clamps), [builder, clamps]);
+
+  function patchBuilder(patch: Partial<BuilderValues>) {
+    setBuilder((prev) => ({ ...prev, ...patch }));
+    if (patch.targetId) setResult(null);
+  }
 
   async function run() {
     setRunning(true);
@@ -65,9 +65,24 @@ export function App() {
   }
 
   function loadScenario(s: SavedScenario) {
-    setTargetId(s.spec.target_chokepoint_id);
-    setReduction(s.spec.capacity_reduction);
-    setDuration(s.spec.duration_days);
+    const enabled = Object.fromEntries(
+      (["container", "dry_bulk", "general_cargo", "roro", "tanker"] as VesselClass[]).map(
+        (c) => [c, (s.spec.class_reductions?.[c] ?? s.spec.capacity_reduction) > 0],
+      ),
+    ) as Record<VesselClass, boolean>;
+    setBuilder((prev) => ({
+      ...prev,
+      targetId: s.spec.target_chokepoint_id,
+      severity: s.spec.capacity_reduction,
+      duration: s.spec.duration_days,
+      cause: s.spec.cause ?? "unspecified",
+      enabled,
+      classReductions: {
+        ...prev.classReductions,
+        ...(s.spec.class_reductions as Record<VesselClass, number> | undefined),
+      },
+      valuePerTon: { ...prev.valuePerTon, ...(s.spec.value_per_ton_usd ?? {}) },
+    }));
     setClamps(Object.fromEntries((s.spec.fcm_clamps ?? []).map((c) => [c.concept_id, c.value])));
     setResult(null);
   }
@@ -82,7 +97,7 @@ export function App() {
             Map
           </button>
           <button className={view === "fcm" ? "active" : ""} onClick={() => setView("fcm")}>
-            Causal map
+            Soft factors
           </button>
         </div>
         <span className="spacer" />
@@ -100,31 +115,45 @@ export function App() {
           <MapView
             baseline={baseline}
             result={result}
-            targetId={targetId}
-            onSelect={(id) => {
-              setTargetId(id);
-              setResult(null);
-            }}
+            targetId={builder.targetId}
+            onSelect={(id) => patchBuilder({ targetId: id })}
           />
         ) : (
           <FcmCanvas clamps={clamps} onClampsChange={setClamps} />
         )}
         <aside className="panel">
-          <ScenarioControls
+          <ScenarioBuilder
             chokepoints={chokepoints}
-            targetId={targetId}
-            reduction={reduction}
-            duration={duration}
+            values={builder}
             clamps={clamps}
             running={running}
-            onTarget={(id) => {
-              setTargetId(id);
-              setResult(null);
-            }}
-            onReduction={setReduction}
-            onDuration={setDuration}
+            onChange={patchBuilder}
             onClampsChange={setClamps}
             onRun={run}
+          />
+          {error && (
+            <section>
+              <div className="error">{error}</div>
+            </section>
+          )}
+          {result && baseline ? (
+            <Dashboard result={result} baseline={baseline} />
+          ) : (
+            !error && (
+              <section>
+                <div className="empty">
+                  Describe a disruption above and run it. The dashboard reports delayed and
+                  rerouted volumes with units, cargo value at risk under stated assumptions,
+                  added transit time, country import exposure, and the market &amp; risk
+                  indices the scenario produced — each with a plain-language explanation
+                  behind the ⓘ buttons.
+                </div>
+              </section>
+            )
+          )}
+          <Signals
+            signals={signals}
+            onApply={(suggested) => setClamps((prev) => ({ ...suggested, ...prev }))}
           />
           <SavedScenarios
             saved={saved}
@@ -139,25 +168,6 @@ export function App() {
               refreshSaved();
             }}
           />
-          {error && (
-            <section>
-              <div className="error">{error}</div>
-            </section>
-          )}
-          {result && baseline ? (
-            <Results result={result} baseline={baseline} />
-          ) : (
-            !error && (
-              <section>
-                <div className="empty">
-                  Configure a disruption and run it. Results show rerouted and delayed
-                  volumes in metric tons, added transit days, and country import exposure —
-                  with the FCM soft-factor indices that modulated them. Set soft-factor
-                  clamps in the causal-map view.
-                </div>
-              </section>
-            )
-          )}
           <Sources status={sources} />
         </aside>
       </div>

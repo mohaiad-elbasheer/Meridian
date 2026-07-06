@@ -1,5 +1,18 @@
 # Architecture Decisions (ADR-style, newest first)
 
+## ADR-006: Scenario engine v2 — vessel classes, cause-driven soft factors, KPI layer (2026-07)
+Vessel classes (container/dry-bulk/general-cargo/ro-ro/tanker — PortWatch's own
+disaggregation) become first-class: per-class reductions, curated class mixes in the
+seed, per-class KPI outputs. The scenario's `cause` (conflict/hazard/accident/policy)
+derives FCM clamps automatically via a documented provisional mapping
+(clamp = base + gain × effective reduction); expert clamps override per concept and
+the derivation is always reported (`auto_clamps`). KPI layer adds cargo-value-at-delay
+under explicit, overridable USD/ton assumptions — assumptions are echoed in every
+result, never silent. Network propagation is unchanged (totals); class outputs are
+proportional splits of blocked volume. UI de-jargonizes FCM as "Soft factors /
+market & risk conditions"; the causal map stays as the expert view. Live signals
+(geo_events near chokepoints) suggest clamps but are never auto-applied.
+
 ## ADR-005: First running prototype on a labeled synthetic seed (2026-07)
 To close the full loop (engine -> API -> map cockpit) before live PortWatch data is
 verified, the engine bundles `data/synthetic_seed_v0.json`: plausible-magnitude,

@@ -121,8 +121,9 @@ export function FcmCanvas({ clamps, onClampsChange }: Props) {
         </div>
       )}
       <div className="map-attrib">
-        weights are literature-governed (dashed = provisional) — click a concept to
-        clamp it in the scenario
+        expert view: the causal map behind the market &amp; risk indices. Weights are
+        literature-governed (dashed = provisional). Click a concept to hold it at a
+        value — overrides the scenario&apos;s automatic soft factors for that concept.
       </div>
     </div>
   );

@@ -37,6 +37,15 @@ CASES = [
     {"target_chokepoint_id": "bab_el_mandeb", "capacity_reduction": 0.65, "duration_days": 21,
      "fcm_clamps": [{"concept_id": "armed_conflict", "value": 0.9},
                     {"concept_id": "energy_prices", "value": 0.5}]},
+    # v2: vessel-class targeting + cause-derived soft factors
+    {"target_chokepoint_id": "strait_of_hormuz", "capacity_reduction": 0.0, "duration_days": 30,
+     "class_reductions": {"tanker": 0.9}, "cause": "conflict", "fcm_clamps": []},
+    {"target_chokepoint_id": "suez_canal", "capacity_reduction": 0.6, "duration_days": 21,
+     "class_reductions": {"container": 0.9, "tanker": 0.2}, "cause": "natural_hazard",
+     "fcm_clamps": []},
+    {"target_chokepoint_id": "bosporus_strait", "capacity_reduction": 0.7, "duration_days": 45,
+     "cause": "policy", "value_per_ton_usd": {"dry_bulk": 300.0},
+     "fcm_clamps": [{"concept_id": "sanction_risk", "value": 0.95}]},
 ]
 
 
@@ -56,11 +65,7 @@ def main() -> None:
     cases = []
     for case in CASES:
         spec = ScenarioSpec(
-            target_chokepoint_id=case["target_chokepoint_id"],
-            capacity_reduction=case["capacity_reduction"],
-            duration_days=case["duration_days"],
-            fcm_clamps=[Clamp(**c) for c in case["fcm_clamps"]],
-        )
+            **{**case, "fcm_clamps": [Clamp(**c) for c in case["fcm_clamps"]]})
         cases.append({"input": case, "expected": run_scenario(fcm_spec, g, spec).model_dump()})
 
     OUT.mkdir(parents=True, exist_ok=True)

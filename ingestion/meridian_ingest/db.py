@@ -25,6 +25,12 @@ VALUES (%(port_id)s, %(date)s, %(portcalls)s, %(import_tons)s, %(export_tons)s, 
 ON CONFLICT (port_id, date) DO NOTHING
 """
 
+UPSERT_COUNTRY_TRADE = """
+INSERT INTO country_trade (reporter, partner, year, import_usd, raw)
+VALUES (%(reporter)s, %(partner)s, %(year)s, %(import_usd)s, %(raw)s)
+ON CONFLICT (reporter, partner, year) DO NOTHING
+"""
+
 UPSERT_GEO_EVENT = """
 INSERT INTO geo_events (id, source, event_time, category, severity, lon, lat, raw)
 VALUES (%(id)s, %(source)s, %(event_time)s, %(category)s, %(severity)s, %(lon)s, %(lat)s, %(raw)s)
