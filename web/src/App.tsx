@@ -1,21 +1,24 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   IS_DEMO,
-  deleteScenario, fetchBaseline, fetchSignals, fetchSourcesStatus, listScenarios,
-  saveScenario, simulateScenario,
+  deleteScenario, fetchBaseline, fetchSignals, fetchSourcesStatus,
+  fetchTradeDependencies, listScenarios, saveScenario, simulateScenario,
   type Baseline, type SavedScenario, type ScenarioResult, type SignalsResponse,
-  type SourcesStatus, type VesselClass,
+  type SourcesStatus, type TradeDependencies, type VesselClass,
 } from "./api";
+import { Monitoring } from "./Monitoring";
 import {
   buildSpec, initialBuilderValues, ScenarioBuilder, type BuilderValues,
 } from "./Builder";
 import { Dashboard } from "./Dashboard";
 import { FcmCanvas } from "./FcmCanvas";
 import { MapView } from "./MapView";
-import { SavedScenarios, Signals, Sources } from "./Panel";
+import { SavedScenarios, Sources } from "./Panel";
 
 export function App() {
+  const [mainView, setMainView] = useState<"monitoring" | "simulation">("simulation");
   const [view, setView] = useState<"map" | "fcm">("map");
+  const [trade, setTrade] = useState<TradeDependencies | null>(null);
   const [baseline, setBaseline] = useState<Baseline | null>(null);
   const [builder, setBuilder] = useState<BuilderValues>(initialBuilderValues("suez_canal"));
   const [clamps, setClamps] = useState<Record<string, number>>({});
@@ -34,6 +37,7 @@ export function App() {
     fetchBaseline().then(setBaseline).catch((e: Error) => setError(e.message));
     fetchSourcesStatus().then(setSources).catch(() => setSources(null));
     fetchSignals().then(setSignals).catch(() => setSignals(null));
+    fetchTradeDependencies().then(setTrade).catch(() => setTrade(null));
     refreshSaved();
   }, [refreshSaved]);
 
@@ -92,14 +96,26 @@ export function App() {
       <header className="header">
         <span className="wordmark"><span>◈</span> MERIDIAN</span>
         <span className="tagline">near-real-time signals · daily-resolution flows</span>
-        <div className="view-toggle">
-          <button className={view === "map" ? "active" : ""} onClick={() => setView("map")}>
-            Map
+        <div className="view-toggle primary">
+          <button className={mainView === "monitoring" ? "active" : ""}
+            onClick={() => setMainView("monitoring")}>
+            Monitoring
           </button>
-          <button className={view === "fcm" ? "active" : ""} onClick={() => setView("fcm")}>
-            Soft factors
+          <button className={mainView === "simulation" ? "active" : ""}
+            onClick={() => setMainView("simulation")}>
+            Simulation
           </button>
         </div>
+        {mainView === "simulation" && (
+          <div className="view-toggle">
+            <button className={view === "map" ? "active" : ""} onClick={() => setView("map")}>
+              Map
+            </button>
+            <button className={view === "fcm" ? "active" : ""} onClick={() => setView("fcm")}>
+              Soft factors
+            </button>
+          </div>
+        )}
         <span className="spacer" />
         {IS_DEMO && <span className="flag">static demo</span>}
         {baseline &&
@@ -110,6 +126,19 @@ export function App() {
           ))}
         <span className="flag neutral">macro v0</span>
       </header>
+      {mainView === "monitoring" ? (
+        <Monitoring
+          baseline={baseline}
+          signals={signals}
+          sources={sources}
+          trade={trade}
+          onApplySignals={(suggested) => setClamps((prev) => ({ ...suggested, ...prev }))}
+          onSimulate={(id) => {
+            patchBuilder({ targetId: id });
+            setMainView("simulation");
+          }}
+        />
+      ) : (
       <div className="body">
         {view === "map" ? (
           <MapView
@@ -151,10 +180,6 @@ export function App() {
               </section>
             )
           )}
-          <Signals
-            signals={signals}
-            onApply={(suggested) => setClamps((prev) => ({ ...suggested, ...prev }))}
-          />
           <SavedScenarios
             saved={saved}
             spec={spec}
@@ -171,6 +196,7 @@ export function App() {
           <Sources status={sources} />
         </aside>
       </div>
+      )}
     </div>
   );
 }

@@ -2,11 +2,12 @@
 // traffic, duration), Expert mode adding per-class reductions, valuation
 // assumptions, and soft-factor clamps (the causal-map layer, kept jargon-free here).
 
+import { useState } from "react";
 import {
   CAUSE_LABELS, CLASS_LABELS, VESSEL_CLASSES,
   type Cause, type NetworkNode, type ScenarioSpec, type VesselClass,
 } from "./api";
-import { tons } from "./format";
+import { tons, worldSharePerDay } from "./format";
 
 export interface BuilderValues {
   targetId: string;
@@ -211,12 +212,32 @@ export function ScenarioBuilder({
       <button className="run" disabled={running || !v.targetId} onClick={onRun}>
         {running ? "Running…" : "Run scenario"}
       </button>
-      {target && (
-        <div className="baseline-note">
-          baseline: {tons(target.baseline_daily_tons ?? 0)}/day ·{" "}
-          {target.baseline_daily_calls ?? "—"} calls/day
-        </div>
-      )}
+      {target && <BaselineNote target={target} />}
     </section>
+  );
+}
+
+function BaselineNote({ target }: { target: NetworkNode }) {
+  const [open, setOpen] = useState(false);
+  const daily = target.baseline_daily_tons ?? 0;
+  return (
+    <div className="baseline-note">
+      on a normal day: ~{target.baseline_daily_calls != null ? Math.round(target.baseline_daily_calls) : "—"} ships,{" "}
+      {tons(daily)} of goods
+      <span className="info">
+        <button aria-label="explain normal day" onClick={() => setOpen(!open)}>i</button>
+        {open && (
+          <span className="info-pop info-pop-up" onClick={() => setOpen(false)}>
+            <strong>What does "normal" mean?</strong>
+            Before simulating a disruption, you need a yardstick. On a typical day,
+            about {target.baseline_daily_calls != null ? Math.round(target.baseline_daily_calls) : "—"} ships carrying roughly{" "}
+            {tons(daily)} of goods pass through {target.label ?? target.id} — around{" "}
+            {worldSharePerDay(daily)} of all seaborne world trade (approximate; world
+            total ≈ 12 billion tons/year). All results compare against this normal day,
+            so "−80% capacity" means only a fifth of that traffic can get through.
+          </span>
+        )}
+      </span>
+    </div>
   );
 }

@@ -1,5 +1,5 @@
 import type { Color, PickingInfo } from "@deck.gl/core";
-import { ArcLayer, ScatterplotLayer } from "@deck.gl/layers";
+import { ArcLayer, ScatterplotLayer, TextLayer } from "@deck.gl/layers";
 import { MapboxOverlay } from "@deck.gl/mapbox";
 import type { FeatureCollection } from "geojson";
 import maplibregl from "maplibre-gl";
@@ -157,6 +157,20 @@ export function MapView({ baseline, result, targetId, onSelect }: Props) {
           },
           updateTriggers: { getFillColor: targetId, getLineColor: targetId },
         }),
+        new TextLayer<Placed>({
+          id: "chokepoint-labels",
+          data: nodes.filter((n) => n.type === "chokepoint"),
+          getPosition: (d) => [d.lon, d.lat],
+          getText: (d) => d.label ?? d.id,
+          getSize: 11,
+          getColor: [152, 162, 179, 220],
+          getPixelOffset: [0, -14],
+          fontFamily: "IBM Plex Sans, sans-serif",
+          fontWeight: 500,
+          outlineWidth: 2,
+          outlineColor: [11, 14, 19, 255],
+          fontSettings: { sdf: true },
+        }),
         new ArcLayer<Arc>({
           id: "reroutes",
           data: arcs,
@@ -175,9 +189,37 @@ export function MapView({ baseline, result, targetId, onSelect }: Props) {
   return (
     <div className="map-wrap">
       <div ref={container} style={{ position: "absolute", inset: 0 }} />
+      <MapLegend hasArcs={Boolean(result)} />
       <div className="map-attrib">
         {result ? "arcs: rerouted flow (width ∝ tons/day)" : "click a chokepoint to target it"}
       </div>
+    </div>
+  );
+}
+
+function MapLegend({ hasArcs }: { hasArcs: boolean }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="map-legend">
+      <div className="head">
+        <span>Maritime chokepoints</span>
+        <button aria-label="about this map" onClick={() => setOpen(!open)}>i</button>
+      </div>
+      <div className="row"><i className="dot cp" /> chokepoint (size ∝ daily tons)</div>
+      <div className="row"><i className="dot cp sel" /> selected target</div>
+      <div className="row"><i className="dot port" /> major port</div>
+      {hasArcs && <div className="row"><i className="arc" /> rerouted flow</div>}
+      {open && (
+        <div className="legend-info" onClick={() => setOpen(false)}>
+          This map focuses on the world&apos;s most important <strong>maritime
+          chokepoints</strong> — narrow passages such as the Suez and Panama canals or
+          the Straits of Hormuz and Malacca, where a large share of world seaborne
+          trade concentrates. IMF PortWatch monitors 28 of them daily; a disruption in
+          one ripples into rerouting, longer transit times, freight costs, and
+          national import exposure. Click any chokepoint to make it the simulation
+          target; hover for its normal traffic.
+        </div>
+      )}
     </div>
   );
 }
