@@ -11,7 +11,14 @@
    "lon": 32.35,
    "baseline_daily_calls": 50.0,
    "baseline_daily_tons": 4500000.0,
-   "capacity_daily_tons": 4950000.0
+   "capacity_daily_tons": 4950000.0,
+   "class_shares": {
+    "container": 0.45,
+    "dry_bulk": 0.18,
+    "general_cargo": 0.1,
+    "roro": 0.05,
+    "tanker": 0.22
+   }
   },
   {
    "id": "bab_el_mandeb",
@@ -21,7 +28,14 @@
    "lon": 43.4,
    "baseline_daily_calls": 55.0,
    "baseline_daily_tons": 4200000.0,
-   "capacity_daily_tons": 4620000.0
+   "capacity_daily_tons": 4620000.0,
+   "class_shares": {
+    "container": 0.4,
+    "dry_bulk": 0.18,
+    "general_cargo": 0.1,
+    "roro": 0.04,
+    "tanker": 0.28
+   }
   },
   {
    "id": "strait_of_hormuz",
@@ -31,7 +45,14 @@
    "lon": 56.5,
    "baseline_daily_calls": 80.0,
    "baseline_daily_tons": 5500000.0,
-   "capacity_daily_tons": 6050000.000000001
+   "capacity_daily_tons": 6050000.000000001,
+   "class_shares": {
+    "container": 0.1,
+    "dry_bulk": 0.08,
+    "general_cargo": 0.05,
+    "roro": 0.02,
+    "tanker": 0.75
+   }
   },
   {
    "id": "strait_of_malacca",
@@ -41,7 +62,14 @@
    "lon": 101.0,
    "baseline_daily_calls": 200.0,
    "baseline_daily_tons": 8000000.0,
-   "capacity_daily_tons": 9200000.0
+   "capacity_daily_tons": 9200000.0,
+   "class_shares": {
+    "container": 0.42,
+    "dry_bulk": 0.2,
+    "general_cargo": 0.08,
+    "roro": 0.04,
+    "tanker": 0.26
+   }
   },
   {
    "id": "panama_canal",
@@ -51,7 +79,14 @@
    "lon": -79.7,
    "baseline_daily_calls": 35.0,
    "baseline_daily_tons": 1100000.0,
-   "capacity_daily_tons": 1210000.0
+   "capacity_daily_tons": 1210000.0,
+   "class_shares": {
+    "container": 0.35,
+    "dry_bulk": 0.3,
+    "general_cargo": 0.1,
+    "roro": 0.07,
+    "tanker": 0.18
+   }
   },
   {
    "id": "strait_of_gibraltar",
@@ -61,7 +96,14 @@
    "lon": -5.6,
    "baseline_daily_calls": 100.0,
    "baseline_daily_tons": 3500000.0,
-   "capacity_daily_tons": 4200000.0
+   "capacity_daily_tons": 4200000.0,
+   "class_shares": {
+    "container": 0.4,
+    "dry_bulk": 0.2,
+    "general_cargo": 0.12,
+    "roro": 0.08,
+    "tanker": 0.2
+   }
   },
   {
    "id": "bosporus_strait",
@@ -71,7 +113,14 @@
    "lon": 29.05,
    "baseline_daily_calls": 40.0,
    "baseline_daily_tons": 1300000.0,
-   "capacity_daily_tons": 1430000.0
+   "capacity_daily_tons": 1430000.0,
+   "class_shares": {
+    "container": 0.15,
+    "dry_bulk": 0.45,
+    "general_cargo": 0.15,
+    "roro": 0.05,
+    "tanker": 0.2
+   }
   },
   {
    "id": "taiwan_strait",
@@ -81,7 +130,14 @@
    "lon": 119.5,
    "baseline_daily_calls": 120.0,
    "baseline_daily_tons": 6000000.0,
-   "capacity_daily_tons": 6899999.999999999
+   "capacity_daily_tons": 6899999.999999999,
+   "class_shares": {
+    "container": 0.5,
+    "dry_bulk": 0.2,
+    "general_cargo": 0.08,
+    "roro": 0.06,
+    "tanker": 0.16
+   }
   },
   {
    "id": "cape_of_good_hope",
@@ -91,7 +147,14 @@
    "lon": 18.5,
    "baseline_daily_calls": 90.0,
    "baseline_daily_tons": 4800000.0,
-   "capacity_daily_tons": 7200000.0
+   "capacity_daily_tons": 7200000.0,
+   "class_shares": {
+    "container": 0.35,
+    "dry_bulk": 0.25,
+    "general_cargo": 0.1,
+    "roro": 0.05,
+    "tanker": 0.25
+   }
   },
   {
    "id": "strait_of_magellan",
@@ -101,7 +164,14 @@
    "lon": -70.8,
    "baseline_daily_calls": 5.0,
    "baseline_daily_tons": 120000.0,
-   "capacity_daily_tons": 360000.0
+   "capacity_daily_tons": 360000.0,
+   "class_shares": {
+    "container": 0.2,
+    "dry_bulk": 0.4,
+    "general_cargo": 0.2,
+    "roro": 0.05,
+    "tanker": 0.15
+   }
   },
   {
    "id": "sunda_strait",
@@ -111,7 +181,14 @@
    "lon": 105.9,
    "baseline_daily_calls": 30.0,
    "baseline_daily_tons": 1200000.0,
-   "capacity_daily_tons": 1920000.0
+   "capacity_daily_tons": 1920000.0,
+   "class_shares": {
+    "container": 0.25,
+    "dry_bulk": 0.4,
+    "general_cargo": 0.1,
+    "roro": 0.05,
+    "tanker": 0.2
+   }
   },
   {
    "id": "lombok_strait",
@@ -121,7 +198,14 @@
    "lon": 115.75,
    "baseline_daily_calls": 20.0,
    "baseline_daily_tons": 800000.0,
-   "capacity_daily_tons": 1280000.0
+   "capacity_daily_tons": 1280000.0,
+   "class_shares": {
+    "container": 0.2,
+    "dry_bulk": 0.5,
+    "general_cargo": 0.1,
+    "roro": 0.05,
+    "tanker": 0.15
+   }
   },
   {
    "id": "luzon_strait",
@@ -131,7 +215,14 @@
    "lon": 121.0,
    "baseline_daily_calls": 40.0,
    "baseline_daily_tons": 2000000.0,
-   "capacity_daily_tons": 3000000.0
+   "capacity_daily_tons": 3000000.0,
+   "class_shares": {
+    "container": 0.45,
+    "dry_bulk": 0.2,
+    "general_cargo": 0.1,
+    "roro": 0.05,
+    "tanker": 0.2
+   }
   },
   {
    "id": "EGY",

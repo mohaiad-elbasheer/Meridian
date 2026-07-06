@@ -16,11 +16,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from meridian_engine import FCMSpec, ScenarioSpec, SimulationRequest, run_scenario, simulate
 
-from . import baselines, scenarios
+from . import baselines, scenarios, signals
 from .settings import Settings
 
 app = FastAPI(title="Meridian API", version="0.1.0")
 app.include_router(scenarios.router)
+app.include_router(signals.router)
 
 app.add_middleware(
     CORSMiddleware,

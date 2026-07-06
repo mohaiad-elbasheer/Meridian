@@ -17,15 +17,19 @@ interface ParityCase {
     target_chokepoint_id: string;
     capacity_reduction: number;
     duration_days: number;
+    class_reductions?: Record<string, number>;
+    cause?: ScenarioSpec["cause"];
+    value_per_ton_usd?: Record<string, number>;
     fcm_clamps: { concept_id: string; value: number }[];
   };
-  expected: Record<string, never> & {
+  expected: {
     fcm: {
       converged: boolean;
       steps: number;
       final_activations: Record<string, number>;
       network_multipliers: Record<string, number>;
     };
+    auto_clamps: Record<string, number>;
     network_multipliers: Record<string, number>;
     impact: {
       rerouted_tons: number;
@@ -34,6 +38,19 @@ interface ParityCase {
       country_exposure: Record<string, number>;
       chokepoints: Record<string, unknown>[];
     };
+    kpis: {
+      blocked_tons: number;
+      delayed_tons: number;
+      rerouted_tons: number;
+      delayed_share_of_window: number;
+      value_delayed_usd: number;
+      value_rerouted_usd: number;
+      per_class: Record<string, Record<string, number>>;
+      top_exposed_countries: Record<string, number>;
+      reroute_cost_factor: number;
+      port_dwell_factor: number;
+    };
+    assumptions: { value_per_ton_usd: Record<string, number>; class_shares_source: string };
     provisional_edges: number;
     total_edges: number;
     warnings: string[];
@@ -58,6 +75,7 @@ describe("demo engine parity with the Python engine", () => {
     expect(result.fcm.steps).toBe(c.expected.fcm.steps);
     expectNumbersClose(result.fcm.final_activations, c.expected.fcm.final_activations);
     expectNumbersClose(result.fcm.network_multipliers, c.expected.fcm.network_multipliers);
+    expectNumbersClose(result.auto_clamps, c.expected.auto_clamps);
     expectNumbersClose(result.network_multipliers, c.expected.network_multipliers);
 
     expect(result.impact.rerouted_tons).toBeCloseTo(c.expected.impact.rerouted_tons, 6);
@@ -68,12 +86,32 @@ describe("demo engine parity with the Python engine", () => {
       Object.keys(c.expected.impact.country_exposure)); // same ranking order
     expect(result.impact.chokepoints.length).toBe(c.expected.impact.chokepoints.length);
 
+    // KPI layer parity
+    const ek = c.expected.kpis;
+    expect(result.kpis.blocked_tons).toBeCloseTo(ek.blocked_tons, 6);
+    expect(result.kpis.delayed_share_of_window).toBeCloseTo(ek.delayed_share_of_window, 9);
+    expect(result.kpis.value_delayed_usd).toBeCloseTo(ek.value_delayed_usd, 3);
+    expect(result.kpis.value_rerouted_usd).toBeCloseTo(ek.value_rerouted_usd, 3);
+    expect(result.kpis.reroute_cost_factor).toBeCloseTo(ek.reroute_cost_factor, 9);
+    expect(result.kpis.port_dwell_factor).toBeCloseTo(ek.port_dwell_factor, 9);
+    expectNumbersClose(result.kpis.top_exposed_countries, ek.top_exposed_countries);
+    for (const cls of Object.keys(ek.per_class)) {
+      expectNumbersClose(
+        result.kpis.per_class[cls] as unknown as Record<string, number>,
+        ek.per_class[cls],
+      );
+    }
+    expect(result.assumptions.value_per_ton_usd).toEqual(
+      c.expected.assumptions.value_per_ton_usd);
+    expect(result.assumptions.class_shares_source).toBe(
+      c.expected.assumptions.class_shares_source);
+
     expect(result.provisional_edges).toBe(c.expected.provisional_edges);
     expect(result.total_edges).toBe(c.expected.total_edges);
     expect(result.warnings).toEqual(c.expected.warnings);
   });
 
   it("difference is within tolerance, not zero cases", () => {
-    expect(cases.length).toBeGreaterThanOrEqual(6);
+    expect(cases.length).toBeGreaterThanOrEqual(9);
   });
 });

@@ -23,6 +23,29 @@ const BASELINE_PORT_DWELL_DAYS = 1.5;
 const CAPACITY_KEY = "chokepoint_capacity_multiplier";
 const DISRUPTION_CONCEPT = "chokepoint_disruption";
 
+const VESSEL_CLASSES = ["container", "dry_bulk", "general_cargo", "roro", "tanker"] as const;
+
+const DEFAULT_VALUE_PER_TON_USD: Record<string, number> = {
+  container: 4000, dry_bulk: 120, general_cargo: 900, roro: 3000, tanker: 550,
+};
+
+const DEFAULT_CLASS_SHARES: Record<string, number> = {
+  container: 0.3, dry_bulk: 0.25, general_cargo: 0.15, roro: 0.05, tanker: 0.25,
+};
+
+// cause -> [concept, base, gain]: clamp = clip(base + gain * severity, 0, 1)
+const CAUSE_CLAMP_RULES: Record<string, [string, number, number][]> = {
+  conflict: [["armed_conflict", 0.3, 0.7]],
+  natural_hazard: [["natural_hazard", 0.3, 0.7]],
+  policy: [["sanction_risk", 0.3, 0.7]],
+  accident: [],
+  unspecified: [],
+};
+
+function round6(x: number): number {
+  return Math.round(x * 1e6) / 1e6;
+}
+
 interface FcmResult {
   converged: boolean;
   steps: number;
@@ -194,19 +217,89 @@ export function runScenario(
   if (!node || node.type !== "chokepoint") {
     throw new Error(`Unknown chokepoint: ${scenario.target_chokepoint_id}`);
   }
-  const clamps = [...(scenario.fcm_clamps ?? [])];
-  if (!clamps.some((c) => c.concept_id === DISRUPTION_CONCEPT)) {
-    clamps.push({ concept_id: DISRUPTION_CONCEPT, value: scenario.capacity_reduction });
+
+  const baselineDaily = node.baseline_daily_tons ?? 0;
+  const sharesProvisional = node.class_shares == null;
+  const shares = node.class_shares ?? DEFAULT_CLASS_SHARES;
+
+  const reductions: Record<string, number> = {};
+  const blockedDailyByClass: Record<string, number> = {};
+  let blockedDaily = 0;
+  for (const c of VESSEL_CLASSES) {
+    reductions[c] = scenario.class_reductions?.[c] ?? scenario.capacity_reduction;
+    blockedDailyByClass[c] = baselineDaily * (shares[c] ?? 0) * reductions[c];
+    blockedDaily += blockedDailyByClass[c];
   }
+  const effectiveReduction = baselineDaily > 0 ? blockedDaily / baselineDaily : 0;
+
+  // Dynamic soft factors: scenario definition drives the FCM; expert clamps win.
+  const auto: Record<string, number> = { [DISRUPTION_CONCEPT]: round6(effectiveReduction) };
+  for (const [concept, base, gain] of CAUSE_CLAMP_RULES[scenario.cause ?? "unspecified"]) {
+    auto[concept] = round6(Math.min(1, base + gain * effectiveReduction));
+  }
+  const expertConcepts = new Set((scenario.fcm_clamps ?? []).map((c) => c.concept_id));
+  const clamps: Clamp[] = [
+    ...(scenario.fcm_clamps ?? []),
+    ...Object.entries(auto)
+      .filter(([k]) => !expertConcepts.has(k))
+      .map(([concept_id, value]) => ({ concept_id, value })),
+  ];
   const fcm = simulateFcm(fcmSpec, clamps);
 
   const applied: Record<string, number> = {
-    [`${CAPACITY_KEY}:${scenario.target_chokepoint_id}`]: 1 - scenario.capacity_reduction,
+    [`${CAPACITY_KEY}:${scenario.target_chokepoint_id}`]: 1 - effectiveReduction,
   };
   for (const key of ["port_dwell_factor", "reroute_cost_factor"]) {
     if (key in fcm.network_multipliers) applied[key] = fcm.network_multipliers[key];
   }
   const impact = applyScenario(baseline, applied, scenario.duration_days);
+
+  const values = { ...DEFAULT_VALUE_PER_TON_USD, ...(scenario.value_per_ton_usd ?? {}) };
+  const perClass: ScenarioResult["kpis"]["per_class"] = {};
+  let valueDelayed = 0;
+  let valueRerouted = 0;
+  for (const c of VESSEL_CLASSES) {
+    const frac = blockedDaily > 0 ? blockedDailyByClass[c] / blockedDaily : 0;
+    const blockedC = blockedDailyByClass[c] * scenario.duration_days;
+    const reroutedC = impact.rerouted_tons * frac;
+    const delayedC = impact.delayed_tons * frac;
+    const vDelayed = delayedC * values[c];
+    valueDelayed += vDelayed;
+    valueRerouted += reroutedC * values[c];
+    perClass[c] = {
+      share: shares[c] ?? 0, reduction: reductions[c], blocked_tons: blockedC,
+      rerouted_tons: reroutedC, delayed_tons: delayedC, value_delayed_usd: vDelayed,
+    };
+  }
+
+  const windowTons = baselineDaily * scenario.duration_days;
+  const kpis: ScenarioResult["kpis"] = {
+    baseline_window_tons: windowTons,
+    blocked_tons: blockedDaily * scenario.duration_days,
+    rerouted_tons: impact.rerouted_tons,
+    delayed_tons: impact.delayed_tons,
+    delayed_share_of_window: windowTons > 0 ? impact.delayed_tons / windowTons : 0,
+    avg_added_days: impact.avg_added_days,
+    value_delayed_usd: valueDelayed,
+    value_rerouted_usd: valueRerouted,
+    per_class: perClass,
+    reroute_cost_factor: applied["reroute_cost_factor"] ?? 1,
+    port_dwell_factor: applied["port_dwell_factor"] ?? 1,
+    landed_cost_activation: fcm.final_activations["landed_cost"] ?? 0,
+    supply_availability_activation: fcm.final_activations["supply_availability"] ?? 0,
+    top_exposed_countries: Object.fromEntries(
+      Object.entries(impact.country_exposure).slice(0, 8)),
+  };
+
+  const causeRules = CAUSE_CLAMP_RULES[scenario.cause ?? "unspecified"];
+  const assumptions: ScenarioResult["assumptions"] = {
+    value_per_ton_usd: values,
+    value_per_ton_provisional: true,
+    class_shares: shares,
+    class_shares_source: sharesProvisional ? "default_provisional" : "curated_seed",
+    ...{ cause_clamp_rules: Object.fromEntries(
+      causeRules.map(([c, base, gain]) => [c, { base, gain }])) },
+  };
 
   const provisional = fcmSpec.edges.filter((e) => e.provenance.provisional).length;
   const warnings: string[] = [];
@@ -222,6 +315,10 @@ export function runScenario(
     );
   }
   warnings.push(...(baseline.data_warnings ?? []));
+  warnings.push(
+    "monetary figures use provisional USD/ton assumptions (see assumptions) — " +
+      "adjust them to your book of business",
+  );
 
   return {
     scenario,
@@ -231,8 +328,11 @@ export function runScenario(
       final_activations: fcm.final_activations,
       network_multipliers: fcm.network_multipliers,
     },
+    auto_clamps: auto,
     network_multipliers: applied,
     impact,
+    kpis,
+    assumptions,
     provisional_edges: provisional,
     total_edges: fcmSpec.edges.length,
     warnings,
