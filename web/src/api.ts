@@ -183,6 +183,7 @@ export interface SeriesPoint {
 
 export interface SeriesResponse {
   available: boolean;
+  illustrative?: boolean;   // demo build: deterministic synthetic series, labeled in UI
   chokepoint_id?: string;
   label?: string;
   days?: number;
@@ -190,7 +191,7 @@ export interface SeriesResponse {
 }
 
 export async function fetchTimeseries(chokepointId: string, days = 90): Promise<SeriesResponse> {
-  if (IS_DEMO) return { available: false, points: [] };
+  if (IS_DEMO) return (await demoApi()).fetchTimeseries(chokepointId);
   return request<SeriesResponse>(`/timeseries/chokepoints/${chokepointId}?days=${days}`);
 }
 

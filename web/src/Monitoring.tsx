@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from "react";
 import {
-  fetchTimeseries, IS_DEMO,
+  fetchTimeseries,
   type Baseline, type NetworkNode, type SeriesResponse, type SignalsResponse,
   type SourcesStatus, type TradeDependencies,
 } from "./api";
@@ -59,27 +59,64 @@ function ChokepointCard({ node, onSimulate }: { node: NetworkNode; onSimulate: (
       {points.length >= 2 ? (
         <>
           <Sparkline points={points} unit="tons" />
-          <button
-            className="csv"
-            onClick={() =>
-              downloadCsv(
-                `${node.id}_daily.csv`,
-                ["date", "transit_calls", "trade_tons"],
-                (series?.points ?? []).map((p) => [p.date, p.transit_calls, p.trade_tons]),
-              )
-            }
-          >
-            ⭳ download history (CSV)
-          </button>
+          <div className="cp-actions">
+            <button
+              className="csv"
+              onClick={() =>
+                downloadCsv(
+                  `${node.id}_daily.csv`,
+                  ["date", "transit_calls", "trade_tons"],
+                  (series?.points ?? []).map((p) => [p.date, p.transit_calls, p.trade_tons]),
+                )
+              }
+            >
+              ⭳ history (CSV)
+            </button>
+            {series?.illustrative && (
+              <span className="illustrative">illustrative series — synthetic demo</span>
+            )}
+          </div>
         </>
       ) : (
-        <div className="cp-noseries">
-          {IS_DEMO
-            ? "historical series available on the live platform"
-            : "no history ingested yet — run the ingestion (docs/LIVE_DATA.md)"}
-        </div>
+        <div className="cp-noseries">daily history appears once data collection is running</div>
       )}
     </div>
+  );
+}
+
+function ThroughputRanking({ chokepoints, onSimulate }: {
+  chokepoints: NetworkNode[];
+  onSimulate: (id: string) => void;
+}) {
+  const max = Math.max(...chokepoints.map((n) => n.baseline_daily_tons ?? 0), 1);
+  return (
+    <section className="mon-section">
+      <h2>
+        Daily throughput ranking
+        <Info title="Throughput ranking"
+          text="Estimated goods moving through each passage on a normal day, in metric
+          tons — with its approximate share of all seaborne world trade. Click a name
+          to simulate a disruption there."
+        />
+      </h2>
+      <div className="rank">
+        {chokepoints.map((n) => {
+          const v = n.baseline_daily_tons ?? 0;
+          return (
+            <div className="rank-row" key={n.id}>
+              <button className="rank-name" onClick={() => onSimulate(n.id)}>
+                {n.label ?? n.id}
+              </button>
+              <div className="rank-track">
+                <div className="rank-fill" style={{ width: `${(v / max) * 100}%` }} />
+              </div>
+              <span className="rank-val">{tons(v)}/d</span>
+              <span className="rank-share">{worldSharePerDay(v)} of world trade</span>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
@@ -135,6 +172,8 @@ export function Monitoring({ baseline, signals, sources, trade, onApplySignals, 
     .sort((a, b) => (b.baseline_daily_tons ?? 0) - (a.baseline_daily_tons ?? 0));
   return (
     <div className="monitoring">
+      <div>
+      <ThroughputRanking chokepoints={chokepoints} onSimulate={onSimulate} />
       <section className="mon-section">
         <h2>
           Chokepoints — current baselines
@@ -152,6 +191,7 @@ export function Monitoring({ baseline, signals, sources, trade, onApplySignals, 
           ))}
         </div>
       </section>
+      </div>
       <div className="mon-side">
         <Signals signals={signals} onApply={onApplySignals} />
         <TradePanel trade={trade} />

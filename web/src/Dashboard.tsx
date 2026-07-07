@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { CLASS_LABELS, VESSEL_CLASSES, type Baseline, type ScenarioResult } from "./api";
 import { days, factor, pct, tons, usd } from "./format";
+import { downloadReport } from "./report";
 
 function Info({ title, text }: { title: string; text: string }) {
   const [open, setOpen] = useState(false);
@@ -35,7 +36,12 @@ export function Dashboard({ result, baseline }: { result: ScenarioResult; baseli
   return (
     <>
       <section>
-        <h2>Impact — {target}, {d}-day window</h2>
+        <h2>
+          Impact — {target}, {d}-day window
+          <button className="csv report-btn" onClick={() => downloadReport(result, baseline)}>
+            ⭳ report
+          </button>
+        </h2>
         <div className="tiles tiles-2">
           <div className="tile">
             <div className="num">{tons(k.delayed_tons)}</div>
