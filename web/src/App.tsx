@@ -10,13 +10,14 @@ import { Monitoring } from "./Monitoring";
 import {
   buildSpec, initialBuilderValues, ScenarioBuilder, type BuilderValues,
 } from "./Builder";
+import { Advisor } from "./Advisor";
 import { Dashboard } from "./Dashboard";
 import { FcmCanvas } from "./FcmCanvas";
 import { MapView } from "./MapView";
 import { SavedScenarios, Sources } from "./Panel";
 
 export function App() {
-  const [mainView, setMainView] = useState<"monitoring" | "simulation">("simulation");
+  const [mainView, setMainView] = useState<"monitoring" | "simulation" | "advisor">("simulation");
   const [view, setView] = useState<"map" | "fcm">("map");
   const [trade, setTrade] = useState<TradeDependencies | null>(null);
   const [baseline, setBaseline] = useState<Baseline | null>(null);
@@ -105,6 +106,10 @@ export function App() {
             onClick={() => setMainView("simulation")}>
             Simulation
           </button>
+          <button className={mainView === "advisor" ? "active" : ""}
+            onClick={() => setMainView("advisor")}>
+            Advisor
+          </button>
         </div>
         {mainView === "simulation" && (
           <div className="view-toggle">
@@ -126,7 +131,13 @@ export function App() {
           ))}
         <span className="flag neutral">macro v0</span>
       </header>
-      {mainView === "monitoring" ? (
+      {mainView === "advisor" ? (
+        <Advisor
+          result={result}
+          baseline={baseline}
+          onGoSimulate={() => setMainView("simulation")}
+        />
+      ) : mainView === "monitoring" ? (
         <Monitoring
           baseline={baseline}
           signals={signals}

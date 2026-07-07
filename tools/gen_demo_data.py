@@ -7,6 +7,10 @@ Writes into web/src/demo/data/:
                        Python engine; the TypeScript port must reproduce them
                        (web parity test, run in CI). This is the guard against the
                        demo drifting from the research engine.
+- series.json        — ILLUSTRATIVE 90-day series per chokepoint (deterministic,
+                       seeded; mild seasonality + noise around the synthetic
+                       baseline). Flagged illustrative and labeled as such in the
+                       demo UI — never presented as observed history.
 
 Run from repo root:  python tools/gen_demo_data.py
 """
@@ -14,6 +18,9 @@ Run from repo root:  python tools/gen_demo_data.py
 from __future__ import annotations
 
 import json
+import math
+import random
+from datetime import date, timedelta
 from pathlib import Path
 
 from meridian_engine import (
@@ -68,11 +75,28 @@ def main() -> None:
             **{**case, "fcm_clamps": [Clamp(**c) for c in case["fcm_clamps"]]})
         cases.append({"input": case, "expected": run_scenario(fcm_spec, g, spec).model_dump()})
 
+    seed = json.loads((ROOT / "engine/meridian_engine/data/synthetic_seed_v0.json").read_text())
+    start = date(2026, 4, 8)  # fixed window keeps output deterministic
+    series = {}
+    for cp in seed["chokepoints"]:
+        rng = random.Random(cp["id"])
+        pts = []
+        for i in range(90):
+            level = 1 + 0.06 * math.sin(i / 90 * 2 * math.pi) + rng.uniform(-0.05, 0.05)
+            pts.append({
+                "date": str(start + timedelta(days=i)),
+                "transit_calls": round(cp["baseline_daily_calls"] * level),
+                "trade_tons": round(cp["baseline_daily_tons"] * level),
+            })
+        series[cp["id"]] = pts
+
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "baseline.json").write_text(json.dumps(baseline, indent=1))
     (OUT / "fcm.json").write_text(json.dumps(fcm_spec.model_dump(), indent=1))
     (OUT / "parity_cases.json").write_text(json.dumps(cases, indent=1))
-    print(f"wrote {OUT}/baseline.json, fcm.json, parity_cases.json ({len(cases)} cases)")
+    (OUT / "series.json").write_text(json.dumps({"illustrative": True, "series": series}))
+    print(f"wrote {OUT}/baseline.json, fcm.json, parity_cases.json ({len(cases)} cases), "
+          f"series.json ({len(series)} chokepoints)")
 
 
 if __name__ == "__main__":

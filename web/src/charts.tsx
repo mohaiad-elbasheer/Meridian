@@ -44,11 +44,15 @@ export interface SparkPoint {
   value: number;
 }
 
-export function Sparkline({ points, unit }: { points: SparkPoint[]; unit: "tons" | "calls" }) {
+export function Sparkline({ points, unit, height = 56 }: {
+  points: SparkPoint[];
+  unit: "tons" | "calls";
+  height?: number;
+}) {
   const [hover, setHover] = useState<number | null>(null);
   if (points.length < 2) return null;
   const w = 260;
-  const h = 44;
+  const h = height;
   const values = points.map((p) => p.value);
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -56,18 +60,22 @@ export function Sparkline({ points, unit }: { points: SparkPoint[]; unit: "tons"
   const xAt = (i: number) => (i / (points.length - 1)) * w;
   const yAt = (v: number) => h - 4 - ((v - min) / span) * (h - 10);
   const path = points.map((p, i) => `${i ? "L" : "M"}${xAt(i).toFixed(1)},${yAt(p.value).toFixed(1)}`).join(" ");
+  const area = `${path} L${w},${h} L0,${h} Z`;
   const hi = hover !== null ? Math.max(0, Math.min(points.length - 1, hover)) : null;
   return (
-    <div className="spark">
+    <div className="spark" style={{ ["--spark-h" as string]: `${h}px` }}>
       <svg
         viewBox={`0 0 ${w} ${h}`}
+        preserveAspectRatio="none"
         onMouseMove={(e) => {
           const rect = (e.target as SVGElement).closest("svg")!.getBoundingClientRect();
           setHover(Math.round(((e.clientX - rect.left) / rect.width) * (points.length - 1)));
         }}
         onMouseLeave={() => setHover(null)}
       >
-        <path d={path} fill="none" stroke="var(--accent)" strokeWidth={1.6} />
+        <path d={area} fill="var(--accent)" opacity={0.1} />
+        <path d={path} fill="none" stroke="var(--accent)" strokeWidth={1.6}
+          vectorEffect="non-scaling-stroke" />
         {hi !== null && (
           <>
             <line x1={xAt(hi)} x2={xAt(hi)} y1={0} y2={h} stroke="var(--ink-3)" strokeWidth={0.6} />

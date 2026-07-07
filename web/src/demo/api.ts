@@ -3,10 +3,12 @@
 // (tools/gen_demo_data.py); scenarios persist in localStorage.
 
 import type {
-  Baseline, FcmMap, SavedScenario, ScenarioResult, ScenarioSpec, SourcesStatus,
+  Baseline, FcmMap, SavedScenario, ScenarioResult, ScenarioSpec, SeriesResponse,
+  SourcesStatus,
 } from "../api";
 import baselineData from "./data/baseline.json";
 import fcmData from "./data/fcm.json";
+import seriesData from "./data/series.json";
 import { runScenario, type FcmSpecFull } from "./engine";
 
 const baseline = baselineData as unknown as Baseline;
@@ -46,6 +48,22 @@ export function simulateScenario(spec: ScenarioSpec): Promise<ScenarioResult> {
   } catch (e) {
     return Promise.reject(e instanceof Error ? e : new Error(String(e)));
   }
+}
+
+const demoSeries = seriesData as unknown as {
+  illustrative: boolean;
+  series: Record<string, { date: string; transit_calls: number; trade_tons: number }[]>;
+};
+
+export function fetchTimeseries(chokepointId: string): Promise<SeriesResponse> {
+  const points = demoSeries.series[chokepointId] ?? [];
+  return Promise.resolve({
+    available: points.length > 0,
+    illustrative: true,
+    chokepoint_id: chokepointId,
+    days: 90,
+    points,
+  });
 }
 
 export function fetchSourcesStatus(): Promise<SourcesStatus> {
