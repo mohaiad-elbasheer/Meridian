@@ -126,28 +126,54 @@ zones, PortWatch tonnages being model estimates, GDELT noise. See
 
 ### Quickstarts
 
-**Run the prototype (no external data needed):**
+> Every command below assumes your Python environment has the project packages
+> installed. If you work inside a virtualenv (recommended), install into **that**
+> venv after activating it — a package installed into system Python is not visible
+> from a venv, which surfaces as `ModuleNotFoundError: No module named 'meridian_…'`.
+
+**One-time setup (local machine or GitHub Codespace):**
 ```bash
-pip install -e ./engine[dev] -e ./api[dev]
-uvicorn meridian_api.main:app --port 8000 &
-cd web && npm install && npm run dev        # open http://localhost:5173
+cd /workspaces/Meridian                      # or your clone path
+python -m venv .venv && source .venv/bin/activate
+python -m pip install -e ./engine[dev] -e ./api[dev] -e ./ingestion[dev]
+cd web && npm install && cd ..
+cp .env.example .env
+# Codespaces/local docker only — the DB runs on localhost, not on the 'db' hostname:
+sed -i 's/@db:5432/@localhost:5432/' .env
 ```
 
-**Bring data in (P0):**
+**Run the platform — one long-running terminal each** (a terminal running a server
+cannot accept other commands; open new terminals with the `+` button):
+
+Terminal 1 — database (leave running, or use `-d` as shown and reuse the terminal):
 ```bash
-cp .env.example .env
-pip install -e ./ingestion[dev]
-python -m meridian_ingest.verify_endpoints   # required before first ingest
 docker compose up -d db
-python -m meridian_ingest.portwatch          # chokepoints first, then ports
-python -m meridian_ingest.scheduler          # or: docker compose --profile ingest up
+```
+Terminal 1 — API (leave running; Ctrl+C, ↑, Enter to restart):
+```bash
+source .venv/bin/activate
+uvicorn meridian_api.main:app --port 8000
+```
+Terminal 2 — web (leave running; open http://localhost:5173 or the forwarded port):
+```bash
+cd web && npm run dev
+```
+
+**Go live — fill the database (run in a free third terminal):**
+```bash
+source .venv/bin/activate
+python -m meridian_ingest.verify_endpoints   # required once: checks the pinned PortWatch URLs
+python -m meridian_ingest.run_all            # fills every source once (Comtrade only with COMTRADE_API_KEY)
+curl -s localhost:8000/sources/status        # expect "reachable": true + row counts
+python -m meridian_ingest.scheduler          # optional: keep data refreshing (leave running)
 ```
 As soon as PortWatch rows exist, the API switches from the synthetic seed to
-DB-backed baselines automatically — the cockpit header shows which one you're seeing.
+DB-backed baselines automatically — restart the API once and the cockpit header
+flips to PORTWATCH BASELINES. Full checklist: `docs/LIVE_DATA.md`.
 
 **Tests:**
 ```bash
-pytest engine/tests api/tests ingestion/tests -q     # 48 tests
+pytest engine/tests api/tests ingestion/tests -q
 # live-DB integration tests: TEST_DATABASE_URL=postgresql://… pytest api/tests
 ```
 
