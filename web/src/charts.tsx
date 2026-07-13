@@ -2,11 +2,20 @@
 // between stacked segments, direct labels — no charting dependency.
 
 import { useState } from "react";
-import { CLASS_LABELS, VESSEL_CLASSES } from "./api";
+import { CLASS_LABELS, VESSEL_CLASSES, type VesselClass } from "./api";
 import { tons } from "./format";
 
-const CLASS_OPACITY: Record<string, number> = {
-  container: 1.0, dry_bulk: 0.75, general_cargo: 0.55, roro: 0.4, tanker: 0.85,
+// Categorical palette for vessel classes (identity encoding). Validated for the
+// dark surface with the palette validator: lightness band, chroma, contrast >= 3:1
+// all PASS; adjacent-pair CVD separation sits in the floor band, which is legal
+// here because every use ships direct labels (legend / row labels) alongside color.
+// Fixed class->hue assignment — never reordered or cycled.
+export const CLASS_COLORS: Record<VesselClass, string> = {
+  container: "#3987e5",      // blue
+  dry_bulk: "#199e70",       // aqua
+  general_cargo: "#c98500",  // yellow
+  roro: "#008300",           // green
+  tanker: "#9085e9",         // violet
 };
 
 export function ClassMixBar({ shares }: { shares: Record<string, number> }) {
@@ -19,8 +28,7 @@ export function ClassMixBar({ shares }: { shares: Record<string, number> }) {
           const w = (shares[c] ?? 0) * width;
           const seg = (
             <rect key={c} x={x} y={0} width={Math.max(0, w - 0.8)} height={8} rx={1}
-              fill={c === "tanker" ? "var(--accent)" : "var(--ink-3)"}
-              opacity={c === "tanker" ? 0.9 : CLASS_OPACITY[c] * 0.6} />
+              fill={CLASS_COLORS[c]} />
           );
           x += w;
           return seg;
@@ -29,8 +37,7 @@ export function ClassMixBar({ shares }: { shares: Record<string, number> }) {
       <div className="classmix-legend">
         {VESSEL_CLASSES.filter((c) => (shares[c] ?? 0) >= 0.03).map((c) => (
           <span key={c}>
-            <i className={c === "tanker" ? "sw accent" : "sw"}
-              style={c === "tanker" ? undefined : { opacity: CLASS_OPACITY[c] * 0.6 }} />
+            <i className="sw" style={{ background: CLASS_COLORS[c] }} />
             {CLASS_LABELS[c]} {Math.round((shares[c] ?? 0) * 100)}%
           </span>
         ))}
