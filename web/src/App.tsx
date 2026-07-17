@@ -183,13 +183,21 @@ export function App() {
             saved={saved}
             spec={spec}
             onSave={async (name) => {
-              await saveScenario(name, spec);
-              refreshSaved();
+              try {
+                await saveScenario(name, spec);
+                refreshSaved();
+              } catch (e) {
+                setError(`could not save scenario — ${(e as Error).message}`);
+              }
             }}
             onLoad={loadScenario}
             onDelete={async (id) => {
-              await deleteScenario(id);
-              refreshSaved();
+              try {
+                await deleteScenario(id);
+                refreshSaved();
+              } catch (e) {
+                setError(`could not delete scenario — ${(e as Error).message}`);
+              }
             }}
           />
           <Sources status={sources} />

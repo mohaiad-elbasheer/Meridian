@@ -1,6 +1,6 @@
 services:
   db:
-    image: timescale/timescaledb:latest-pg16   # multi-arch, works on OCI Ampere (arm64)
+    image: timescale/timescaledb:2.20.3-pg16   # pinned; multi-arch, works on OCI Ampere (arm64)
     environment:
       POSTGRES_USER: meridian
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-meridian}
@@ -24,7 +24,10 @@ services:
 
   ingestion:
     build: ./ingestion
-    env_file: .env
+    env_file: .env      # API keys + pinned source URLs
+    environment:
+      # in-network DSN must win over any localhost DATABASE_URL in .env (REL-05)
+      DATABASE_URL: postgresql://meridian:${POSTGRES_PASSWORD:-meridian}@db:5432/meridian
     depends_on:
       db:
         condition: service_healthy

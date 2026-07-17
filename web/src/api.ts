@@ -225,8 +225,19 @@ export async function fetchTradeDependencies(): Promise<TradeDependencies> {
   return request<TradeDependencies>("/trade/dependencies");
 }
 
+// Hung backends must surface as errors, not eternal spinners (QC P0-06).
+const REQUEST_TIMEOUT_MS = 20_000;
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`/api${path}`, init);
+  let res: Response;
+  try {
+    res = await fetch(`/api${path}`, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS), ...init });
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "TimeoutError") {
+      throw new Error(`API did not respond within ${REQUEST_TIMEOUT_MS / 1000}s (${path})`);
+    }
+    throw e;
+  }
   if (!res.ok) {
     const body = await res.text();
     throw new Error(`${res.status} ${res.statusText}: ${body.slice(0, 300)}`);
@@ -268,7 +279,10 @@ export async function saveScenario(name: string, spec: ScenarioSpec): Promise<Sa
 
 export async function deleteScenario(id: string): Promise<void> {
   if (IS_DEMO) return (await demoApi()).deleteScenario(id);
-  return fetch(`/api/scenarios/${id}`, { method: "DELETE" }).then(() => undefined);
+  const res = await fetch(`/api/scenarios/${id}`, {
+    method: "DELETE", signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+  });
+  if (!res.ok) throw new Error(`delete failed: ${res.status} ${res.statusText}`);
 }
 
 export interface FcmConcept {
