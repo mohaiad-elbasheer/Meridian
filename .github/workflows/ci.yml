@@ -42,3 +42,37 @@ jobs:
         working-directory: web
       - run: npm run build
         working-directory: web
+  compose-smoke:
+    # The full stack must actually build and serve (QC P0-01): db + api + web
+    # via nginx /api proxy, exercised end-to-end on the synthetic seed.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp .env.example .env
+      - run: docker compose --profile web build
+      - run: docker compose --profile web up -d --wait db api web
+      - name: probe endpoints
+        run: |
+          curl -fsS http://localhost:8000/health
+          curl -fsS http://localhost:8000/network/baseline | python3 -c "
+          import json, sys
+          b = json.load(sys.stdin)
+          assert b['provenance'] == 'synthetic', b['provenance']
+          assert any(n['type'] == 'chokepoint' for n in b['nodes'])
+          print('baseline OK:', b['provenance'], len(b['nodes']), 'nodes')
+          "
+          curl -fsS http://localhost:5173/ | grep -qi '<div id="root">'
+          curl -fsS http://localhost:5173/api/health
+          curl -fsS -X POST http://localhost:5173/api/scenario/simulate \
+            -H 'Content-Type: application/json' \
+            -d '{"target_chokepoint_id":"suez_canal","capacity_reduction":0.8,"duration_days":14}' \
+            | python3 -c "
+          import json, sys
+          r = json.load(sys.stdin)
+          assert r['impact']['rerouted_tons'] > 0
+          print('simulate OK:', round(r['impact']['rerouted_tons']), 'tons rerouted')
+          "
+      - name: logs on failure
+        if: failure()
+        run: docker compose logs
+      - run: docker compose down -v

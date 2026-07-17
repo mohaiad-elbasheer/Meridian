@@ -16,11 +16,21 @@ services:
       retries: 12
 
   api:
-    build: ./api
+    build:
+      context: .            # api installs the local meridian-engine package
+      dockerfile: api/Dockerfile
     environment:
       DATABASE_URL: postgresql://meridian:${POSTGRES_PASSWORD:-meridian}@db:5432/meridian
-    depends_on: [db]
+    depends_on:
+      db:
+        condition: service_healthy
     ports: ["8000:8000"]
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
 
   ingestion:
     build: ./ingestion
@@ -35,7 +45,9 @@ services:
 
   web:
     build: ./web
-    depends_on: [api]
+    depends_on:
+      api:
+        condition: service_healthy
     ports: ["5173:80"]
     profiles: ["web"]
 
