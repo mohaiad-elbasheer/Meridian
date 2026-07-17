@@ -1,5 +1,23 @@
 # Architecture Decisions (ADR-style, newest first)
 
+## ADR-007: QC Phase 0 stabilization — provenance contract, guards, buildable stack (2026-07)
+Response to the 2026-07-16 usability/reliability QC report (GO as labeled research
+demo, NO-GO as live decision service until Phase 0/1 close; feature freeze meanwhile).
+(a) **Provenance contract**: every baseline graph carries `provenance`
+(`synthetic`/`mixed`/`observed`) + coverage counts, and every chokepoint node carries
+`baseline_source` (`portwatch_daily`/`synthetic_seed`). "Observed" requires *every*
+curated chokepoint matched to PortWatch rows — one matched row never presents the
+whole graph as observed. Mixed datasets warn globally and per synthetic-target
+scenario; the UI chip, Monitoring cards, and exported reports all show it.
+(b) **Guards**: money inputs validated (finite, >= 0); FCM non-convergence becomes the
+first, prominent warning; scenario save/load round-trips the full spec (contract-tested
+in both engines). (c) **Buildable stack**: api + web Dockerfiles (web = multi-stage
+nginx serving the SPA and reverse-proxying `/api`), pinned Timescale image, explicit
+in-network DATABASE_URL for containers (a localhost DSN in `.env` no longer breaks
+them), and a CI compose-smoke job that builds db+api+web and exercises
+baseline + simulate end-to-end. GDACS XML parsed via defusedxml; web client enforces
+request timeouts and surfaces mutation failures.
+
 ## ADR-006: Scenario engine v2 — vessel classes, cause-driven soft factors, KPI layer (2026-07)
 Vessel classes (container/dry-bulk/general-cargo/ro-ro/tanker — PortWatch's own
 disaggregation) become first-class: per-class reductions, curated class mixes in the

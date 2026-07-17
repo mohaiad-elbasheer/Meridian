@@ -39,6 +39,31 @@ export function initialBuilderValues(targetId: string): BuilderValues {
   };
 }
 
+// Inverse of buildSpec: reconstruct builder state from a saved spec so that
+// save -> load -> rebuild round-trips exactly (QC REL-04). Any per-class
+// reductions in the spec switch the builder to Expert mode, where buildSpec
+// always re-emits the full class map.
+export function builderFromSpec(spec: ScenarioSpec, prev: BuilderValues): BuilderValues {
+  const hasClassReductions =
+    spec.class_reductions != null && Object.keys(spec.class_reductions).length > 0;
+  const classReductions = Object.fromEntries(VESSEL_CLASSES.map((c) => [
+    c, spec.class_reductions?.[c] ?? spec.capacity_reduction,
+  ])) as Record<VesselClass, number>;
+  return {
+    ...prev,
+    targetId: spec.target_chokepoint_id,
+    severity: spec.capacity_reduction,
+    duration: spec.duration_days,
+    cause: spec.cause ?? "unspecified",
+    enabled: Object.fromEntries(VESSEL_CLASSES.map((c) => [
+      c, classReductions[c] > 0,
+    ])) as Record<VesselClass, boolean>,
+    expert: hasClassReductions,
+    classReductions,
+    valuePerTon: { ...DEFAULT_VALUE_PER_TON, ...(spec.value_per_ton_usd ?? {}) },
+  };
+}
+
 export function buildSpec(v: BuilderValues, clamps: Record<string, number>): ScenarioSpec {
   let classReductions: Record<string, number> | undefined;
   if (v.expert) {

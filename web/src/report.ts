@@ -16,6 +16,11 @@ export function buildReportHtml(result: ScenarioResult, baseline: Baseline): str
   const target = baseline.nodes.find((x) => x.id === s.target_chokepoint_id)?.label ??
     s.target_chokepoint_id;
   const now = new Date().toISOString().slice(0, 16).replace("T", " ");
+  const prov = baseline.provenance ?? (baseline.synthetic ? "synthetic" : "observed");
+  const cov = baseline.coverage;
+  const provLine = `baseline data: ${prov}${
+    cov ? ` (${cov.chokepoints_observed}/${cov.chokepoints_total} chokepoints observed)` : ""
+  } — ${baseline.source}`;
 
   const classRows = VESSEL_CLASSES.filter((c) => (k.per_class[c]?.blocked_tons ?? 0) > 0)
     .map((c) => {
@@ -54,7 +59,7 @@ export function buildReportHtml(result: ScenarioResult, baseline: Baseline): str
 </style></head><body>
 <h1>Meridian — scenario report</h1>
 <p class="meta">${esc(s.name || target)} · generated ${now} UTC ·
-near-real-time signals, daily-resolution flows</p>
+near-real-time signals, daily-resolution flows<br>${esc(provLine)}</p>
 
 <h2>Scenario</h2><p>${esc(n.scenario)}</p>
 <h2>What the simulation shows</h2><p>${esc(n.outcome)}</p>

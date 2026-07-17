@@ -61,9 +61,14 @@ def main() -> None:
         (ROOT / "engine/meridian_engine/maps/macro_v0.json").read_text()))
     g = build_synthetic_graph()
 
+    n_cp = sum(1 for _, d in g.nodes(data=True) if d.get("type") == "chokepoint")
+    n_ports = sum(1 for _, d in g.nodes(data=True) if d.get("type") == "port")
     baseline = {
         "source": g.graph.get("source"),
         "synthetic": bool(g.graph.get("synthetic", False)),
+        "provenance": "synthetic",
+        "coverage": {"chokepoints_observed": 0, "chokepoints_total": n_cp,
+                     "ports_observed": 0, "ports_total": n_ports},
         "data_warnings": g.graph.get("data_warnings", []),
         "nodes": [{"id": n, **d} for n, d in g.nodes(data=True)],
         "edges": [{"source": u, "target": v, **d} for u, v, d in g.edges(data=True)],

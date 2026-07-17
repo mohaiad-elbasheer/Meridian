@@ -41,6 +41,7 @@ export interface NetworkNode {
   baseline_daily_tons?: number;
   capacity_daily_tons?: number;
   class_shares?: Record<string, number> | null;
+  baseline_source?: "portwatch_daily" | "synthetic_seed";
 }
 
 export interface NetworkEdge {
@@ -51,9 +52,20 @@ export interface NetworkEdge {
   share?: number;
 }
 
+export type Provenance = "synthetic" | "mixed" | "observed";
+
+export interface Coverage {
+  chokepoints_observed: number;
+  chokepoints_total: number;
+  ports_observed: number;
+  ports_total: number;
+}
+
 export interface Baseline {
   source: string;
   synthetic: boolean;
+  provenance?: Provenance;   // per-graph data provenance (QC REL-02)
+  coverage?: Coverage;
   data_warnings: string[];
   nodes: NetworkNode[];
   edges: NetworkEdge[];
@@ -213,8 +225,19 @@ export async function fetchTradeDependencies(): Promise<TradeDependencies> {
   return request<TradeDependencies>("/trade/dependencies");
 }
 
+// Hung backends must surface as errors, not eternal spinners (QC P0-06).
+const REQUEST_TIMEOUT_MS = 20_000;
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`/api${path}`, init);
+  let res: Response;
+  try {
+    res = await fetch(`/api${path}`, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS), ...init });
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "TimeoutError") {
+      throw new Error(`API did not respond within ${REQUEST_TIMEOUT_MS / 1000}s (${path})`);
+    }
+    throw e;
+  }
   if (!res.ok) {
     const body = await res.text();
     throw new Error(`${res.status} ${res.statusText}: ${body.slice(0, 300)}`);
@@ -256,7 +279,10 @@ export async function saveScenario(name: string, spec: ScenarioSpec): Promise<Sa
 
 export async function deleteScenario(id: string): Promise<void> {
   if (IS_DEMO) return (await demoApi()).deleteScenario(id);
-  return fetch(`/api/scenarios/${id}`, { method: "DELETE" }).then(() => undefined);
+  const res = await fetch(`/api/scenarios/${id}`, {
+    method: "DELETE", signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+  });
+  if (!res.ok) throw new Error(`delete failed: ${res.status} ${res.statusText}`);
 }
 
 export interface FcmConcept {

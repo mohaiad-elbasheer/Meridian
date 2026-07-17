@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 import httpx
+from defusedxml import ElementTree as SafeET  # GDACS feed is remote input (QC P0-07)
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from . import db
@@ -53,7 +54,7 @@ def _text(item: ET.Element, path: str) -> str | None:
 
 def parse_gdacs(xml_text: str) -> list[dict[str, Any]]:
     rows = []
-    for item in ET.fromstring(xml_text).iter("item"):
+    for item in SafeET.fromstring(xml_text).iter("item"):
         guid = _text(item, "guid")
         pub = _text(item, "pubDate")
         if not guid or not pub:

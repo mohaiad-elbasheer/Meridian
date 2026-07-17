@@ -3,8 +3,9 @@
 Meridian is a geo-economic **monitoring and stress-testing cockpit** for international
 supply chain resilience, built for analysts, researchers, and decision makers.
 
-It watches the arteries of world trade — 28 maritime chokepoints and the top ports —
-and lets you ask *what-if* questions with answers in real units: **"If the Suez Canal
+It watches the arteries of world trade — the maritime chokepoints and top ports
+monitored daily by IMF PortWatch — and lets you ask *what-if* questions with answers
+in real units: **"If the Suez Canal
 loses 80% of its capacity for two weeks, how many tons reroute, how many are delayed,
 how many days does transit grow, and whose imports are exposed?"**
 
@@ -47,9 +48,12 @@ deterministic and reproducible — the engine doubles as a publishable research 
 
 ## Goals (v0) and ambitions
 
-**v0 — macro lens.** 28 chokepoints + top ~50 ports + country-level trade
-dependencies. Daily-resolution ingestion, scenario stress tests through the two-layer
-engine, a map-first cockpit. No sector detail yet.
+**v0 — macro lens.** Target: all 28 PortWatch chokepoints + top ~50 ports +
+country-level trade dependencies. Daily-resolution ingestion, scenario stress tests
+through the two-layer engine, a map-first cockpit. No sector detail yet.
+*Current curated simulation topology covers 13 chokepoints + 16 ports* (ingestion
+pulls every chokepoint/port PortWatch publishes; the curated alt-route/import-share
+topology is being extended toward the full target).
 
 **Where it's headed.**
 - **Sector lenses** (textiles first): which industries feel a chokepoint closure, and when.
@@ -58,15 +62,28 @@ engine, a map-first cockpit. No sector detail yet.
 - **Alerting**: push notifications when live signals cross scenario-informed thresholds.
 - **Multi-user deployments** with saved scenario libraries.
 
-## Current status
+## Current status — capability matrix
 
-| Phase | Scope | State |
-|---|---|---|
-| P0 Ingestion + DB | PortWatch chokepoints/ports → TimescaleDB; GDELT, USGS, GDACS ingestors; schedules | Code complete + tested; first live run pending endpoint verification |
-| P1 Engine | Network layer, FCM↔network couplings, scenario orchestrator | Done, unit-tested |
-| P2 API | Baselines, scenario simulate, sources status | Core endpoints done |
-| P3 Web | Map cockpit, scenario builder, results panel | First running prototype |
-| P4 Deploy | OCI, Docker Compose, CI/CD | Compose + CI in place; OCI pending |
+What works **today**, and on what data. "Synthetic seed" means the bundled, clearly
+flagged development dataset; results on it are *illustrative, not decision-grade*.
+Every graph carries a provenance label (`synthetic` / `mixed` / `observed`) shown in
+the UI and on exported reports.
+
+| Capability | Works on synthetic seed | Works on live data | Notes |
+|---|---|---|---|
+| Scenario simulation (two-layer engine) | ✔ tested | ✔ once PortWatch rows are ingested | Deterministic; warnings list provisional inputs |
+| Monitoring view (baselines, cargo mix, rankings) | ✔ | ✔ (DB-backed trailing averages) | Static demo shows labeled *illustrative* series |
+| Historical time series + CSV download | demo: illustrative only | ✔ from `chokepoint_daily` | |
+| Live hazard/conflict signals → suggested inputs | — | ✔ (GDELT, USGS, GDACS) | Advisory only |
+| Trade dependencies (UN Comtrade) | — | ✔ (requires free API key) | Annual structure |
+| Scenario save/load | ✔ (demo: browser storage) | ✔ (Postgres) | No auth yet — single-analyst use |
+| Advisor narratives + HTML reports | ✔ | ✔ | Rule-based; provenance line included |
+| FRED / EIA cost proxies | — | — | Planned, not implemented |
+| Sector lenses, learned FCM weights, alerting | — | — | Future phases (feature-frozen until stabilization completes) |
+
+Phases P0–P3 are code-complete and unit-tested; the first *live* ingestion run
+against PortWatch endpoints is still pending verification, and P4 (OCI deploy) has
+Compose + CI in place but no public instance yet.
 
 ---
 
@@ -118,7 +135,7 @@ engine, a map-first cockpit. No sector detail yet.
 | GDELT 2.0 | Geopolitical events, aggregated near chokepoints | 15 min |
 | USGS / GDACS | Earthquakes / multi-hazard alerts | Real-time |
 | UN Comtrade | Annual trade matrix (network structure) | Annual |
-| FRED / EIA | Freight & energy cost proxies | Daily/weekly |
+| FRED / EIA | Freight & energy cost proxies — **planned, not yet ingested** | Daily/weekly |
 
 Data-quality caveats are surfaced, not hidden: AIS jamming/spoofing near conflict
 zones, PortWatch tonnages being model estimates, GDELT noise. See
