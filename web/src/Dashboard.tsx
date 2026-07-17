@@ -3,7 +3,9 @@
 
 import { useState } from "react";
 import { CLASS_LABELS, VESSEL_CLASSES, type Baseline, type ScenarioResult } from "./api";
+import { CLASS_COLORS } from "./charts";
 import { days, factor, pct, tons, usd } from "./format";
+import { downloadReport } from "./report";
 
 function Info({ title, text }: { title: string; text: string }) {
   const [open, setOpen] = useState(false);
@@ -35,7 +37,12 @@ export function Dashboard({ result, baseline }: { result: ScenarioResult; baseli
   return (
     <>
       <section>
-        <h2>Impact — {target}, {d}-day window</h2>
+        <h2>
+          Impact — {target}, {d}-day window
+          <button className="csv report-btn" onClick={() => downloadReport(result, baseline)}>
+            ⭳ report
+          </button>
+        </h2>
         <div className="tiles tiles-2">
           <div className="tile">
             <div className="num">{tons(k.delayed_tons)}</div>
@@ -111,7 +118,10 @@ export function Dashboard({ result, baseline }: { result: ScenarioResult; baseli
               <div className="bar-row bar-row-wide" key={c}>
                 <span className="iso">{CLASS_LABELS[c]}</span>
                 <div className="track">
-                  <div className="fill" style={{ width: `${(ci.blocked_tons / maxBlocked) * 100}%` }} />
+                  <div className="fill" style={{
+                    width: `${(ci.blocked_tons / maxBlocked) * 100}%`,
+                    background: CLASS_COLORS[c],
+                  }} />
                 </div>
                 <span className="val">{tons(ci.blocked_tons)}</span>
                 <span className="sub">

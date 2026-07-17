@@ -3,8 +3,9 @@
 Meridian is a geo-economic **monitoring and stress-testing cockpit** for international
 supply chain resilience, built for analysts, researchers, and decision makers.
 
-It watches the arteries of world trade — 28 maritime chokepoints and the top ports —
-and lets you ask *what-if* questions with answers in real units: **"If the Suez Canal
+It watches the arteries of world trade — the maritime chokepoints and top ports
+monitored daily by IMF PortWatch — and lets you ask *what-if* questions with answers
+in real units: **"If the Suez Canal
 loses 80% of its capacity for two weeks, how many tons reroute, how many are delayed,
 how many days does transit grow, and whose imports are exposed?"**
 
@@ -47,9 +48,12 @@ deterministic and reproducible — the engine doubles as a publishable research 
 
 ## Goals (v0) and ambitions
 
-**v0 — macro lens.** 28 chokepoints + top ~50 ports + country-level trade
-dependencies. Daily-resolution ingestion, scenario stress tests through the two-layer
-engine, a map-first cockpit. No sector detail yet.
+**v0 — macro lens.** Target: all 28 PortWatch chokepoints + top ~50 ports +
+country-level trade dependencies. Daily-resolution ingestion, scenario stress tests
+through the two-layer engine, a map-first cockpit. No sector detail yet.
+*Current curated simulation topology covers 13 chokepoints + 16 ports* (ingestion
+pulls every chokepoint/port PortWatch publishes; the curated alt-route/import-share
+topology is being extended toward the full target).
 
 **Where it's headed.**
 - **Sector lenses** (textiles first): which industries feel a chokepoint closure, and when.
@@ -58,15 +62,28 @@ engine, a map-first cockpit. No sector detail yet.
 - **Alerting**: push notifications when live signals cross scenario-informed thresholds.
 - **Multi-user deployments** with saved scenario libraries.
 
-## Current status
+## Current status — capability matrix
 
-| Phase | Scope | State |
-|---|---|---|
-| P0 Ingestion + DB | PortWatch chokepoints/ports → TimescaleDB; GDELT, USGS, GDACS ingestors; schedules | Code complete + tested; first live run pending endpoint verification |
-| P1 Engine | Network layer, FCM↔network couplings, scenario orchestrator | Done, unit-tested |
-| P2 API | Baselines, scenario simulate, sources status | Core endpoints done |
-| P3 Web | Map cockpit, scenario builder, results panel | First running prototype |
-| P4 Deploy | OCI, Docker Compose, CI/CD | Compose + CI in place; OCI pending |
+What works **today**, and on what data. "Synthetic seed" means the bundled, clearly
+flagged development dataset; results on it are *illustrative, not decision-grade*.
+Every graph carries a provenance label (`synthetic` / `mixed` / `observed`) shown in
+the UI and on exported reports.
+
+| Capability | Works on synthetic seed | Works on live data | Notes |
+|---|---|---|---|
+| Scenario simulation (two-layer engine) | ✔ tested | ✔ once PortWatch rows are ingested | Deterministic; warnings list provisional inputs |
+| Monitoring view (baselines, cargo mix, rankings) | ✔ | ✔ (DB-backed trailing averages) | Static demo shows labeled *illustrative* series |
+| Historical time series + CSV download | demo: illustrative only | ✔ from `chokepoint_daily` | |
+| Live hazard/conflict signals → suggested inputs | — | ✔ (GDELT, USGS, GDACS) | Advisory only |
+| Trade dependencies (UN Comtrade) | — | ✔ (requires free API key) | Annual structure |
+| Scenario save/load | ✔ (demo: browser storage) | ✔ (Postgres) | No auth yet — single-analyst use |
+| Advisor narratives + HTML reports | ✔ | ✔ | Rule-based; provenance line included |
+| FRED / EIA cost proxies | — | — | Planned, not implemented |
+| Sector lenses, learned FCM weights, alerting | — | — | Future phases (feature-frozen until stabilization completes) |
+
+Phases P0–P3 are code-complete and unit-tested; the first *live* ingestion run
+against PortWatch endpoints is still pending verification, and P4 (OCI deploy) has
+Compose + CI in place but no public instance yet.
 
 ---
 
@@ -118,7 +135,7 @@ engine, a map-first cockpit. No sector detail yet.
 | GDELT 2.0 | Geopolitical events, aggregated near chokepoints | 15 min |
 | USGS / GDACS | Earthquakes / multi-hazard alerts | Real-time |
 | UN Comtrade | Annual trade matrix (network structure) | Annual |
-| FRED / EIA | Freight & energy cost proxies | Daily/weekly |
+| FRED / EIA | Freight & energy cost proxies — **planned, not yet ingested** | Daily/weekly |
 
 Data-quality caveats are surfaced, not hidden: AIS jamming/spoofing near conflict
 zones, PortWatch tonnages being model estimates, GDELT noise. See
@@ -126,28 +143,54 @@ zones, PortWatch tonnages being model estimates, GDELT noise. See
 
 ### Quickstarts
 
-**Run the prototype (no external data needed):**
+> Every command below assumes your Python environment has the project packages
+> installed. If you work inside a virtualenv (recommended), install into **that**
+> venv after activating it — a package installed into system Python is not visible
+> from a venv, which surfaces as `ModuleNotFoundError: No module named 'meridian_…'`.
+
+**One-time setup (local machine or GitHub Codespace):**
 ```bash
-pip install -e ./engine[dev] -e ./api[dev]
-uvicorn meridian_api.main:app --port 8000 &
-cd web && npm install && npm run dev        # open http://localhost:5173
+cd /workspaces/Meridian                      # or your clone path
+python -m venv .venv && source .venv/bin/activate
+python -m pip install -e ./engine[dev] -e ./api[dev] -e ./ingestion[dev]
+cd web && npm install && cd ..
+cp .env.example .env
+# Codespaces/local docker only — the DB runs on localhost, not on the 'db' hostname:
+sed -i 's/@db:5432/@localhost:5432/' .env
 ```
 
-**Bring data in (P0):**
+**Run the platform — one long-running terminal each** (a terminal running a server
+cannot accept other commands; open new terminals with the `+` button):
+
+Terminal 1 — database (leave running, or use `-d` as shown and reuse the terminal):
 ```bash
-cp .env.example .env
-pip install -e ./ingestion[dev]
-python -m meridian_ingest.verify_endpoints   # required before first ingest
 docker compose up -d db
-python -m meridian_ingest.portwatch          # chokepoints first, then ports
-python -m meridian_ingest.scheduler          # or: docker compose --profile ingest up
+```
+Terminal 1 — API (leave running; Ctrl+C, ↑, Enter to restart):
+```bash
+source .venv/bin/activate
+uvicorn meridian_api.main:app --port 8000
+```
+Terminal 2 — web (leave running; open http://localhost:5173 or the forwarded port):
+```bash
+cd web && npm run dev
+```
+
+**Go live — fill the database (run in a free third terminal):**
+```bash
+source .venv/bin/activate
+python -m meridian_ingest.verify_endpoints   # required once: checks the pinned PortWatch URLs
+python -m meridian_ingest.run_all            # fills every source once (Comtrade only with COMTRADE_API_KEY)
+curl -s localhost:8000/sources/status        # expect "reachable": true + row counts
+python -m meridian_ingest.scheduler          # optional: keep data refreshing (leave running)
 ```
 As soon as PortWatch rows exist, the API switches from the synthetic seed to
-DB-backed baselines automatically — the cockpit header shows which one you're seeing.
+DB-backed baselines automatically — restart the API once and the cockpit header
+flips to PORTWATCH BASELINES. Full checklist: `docs/LIVE_DATA.md`.
 
 **Tests:**
 ```bash
-pytest engine/tests api/tests ingestion/tests -q     # 48 tests
+pytest engine/tests api/tests ingestion/tests -q
 # live-DB integration tests: TEST_DATABASE_URL=postgresql://… pytest api/tests
 ```
 

@@ -71,6 +71,8 @@ def network_baseline(refresh: bool = False) -> dict:
     return {
         "source": g.graph.get("source"),
         "synthetic": bool(g.graph.get("synthetic", False)),
+        "provenance": g.graph.get("provenance", "synthetic"),
+        "coverage": g.graph.get("coverage", {}),
         "data_warnings": g.graph.get("data_warnings", []),
         "nodes": [{"id": n, **d} for n, d in g.nodes(data=True)],
         "edges": [{"source": u, "target": v, **d} for u, v, d in g.edges(data=True)],

@@ -88,9 +88,11 @@ class ScenarioSpec(BaseModel):
                 raise ValueError(f"Unknown vessel class: {cls}")
             if not 0.0 <= red <= 1.0:
                 raise ValueError(f"class_reductions[{cls}] out of [0,1]: {red}")
-        for cls in self.value_per_ton_usd:
+        for cls, value in self.value_per_ton_usd.items():
             if cls not in VESSEL_CLASSES:
                 raise ValueError(f"Unknown vessel class in value_per_ton_usd: {cls}")
+            if not (value >= 0.0) or value != value or value == float("inf"):
+                raise ValueError(f"value_per_ton_usd[{cls}] must be a finite value >= 0: {value}")
         return self
 
 
@@ -231,6 +233,11 @@ def run_scenario(fcm_spec: FCMSpec, graph: nx.DiGraph, scenario: ScenarioSpec) -
     }
 
     warnings = []
+    if not fcm_result.converged:
+        warnings.append(
+            f"FCM did NOT converge within {scenario.max_steps} steps — soft-factor "
+            "indices are unreliable for this run; do not base decisions on them "
+            "(increase max_steps or review clamps)")
     if fcm_spec.provisional_edges():
         warnings.append(
             f"{len(fcm_spec.provisional_edges())}/{len(fcm_spec.edges)} FCM edge weights are "
@@ -239,6 +246,11 @@ def run_scenario(fcm_spec: FCMSpec, graph: nx.DiGraph, scenario: ScenarioSpec) -
         warnings.append(
             f"baselines: {graph.graph.get('source', 'unknown')} — synthetic development seed, "
             "not PortWatch data")
+    if graph.graph.get("provenance") == "mixed" and \
+            node.get("baseline_source") == "synthetic_seed":
+        warnings.append(
+            f"the TARGET chokepoint ({scenario.target_chokepoint_id}) has a synthetic "
+            "baseline in this mixed dataset — its volumes are not observed")
     warnings.extend(graph.graph.get("data_warnings", []))
     warnings.append(
         "monetary figures use provisional USD/ton assumptions (see assumptions) — "

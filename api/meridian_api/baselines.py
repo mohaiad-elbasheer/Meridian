@@ -79,8 +79,10 @@ def merge_baselines(template: list[dict[str, Any]], db_rows: list[DbBaseline],
             entry["baseline_daily_tons"] = row.tons
             if row.calls:
                 entry["baseline_daily_calls"] = row.calls
+            entry["baseline_source"] = "portwatch_daily"
             matched += 1
         else:
+            entry["baseline_source"] = "synthetic_seed"
             unmatched.append(entry.get("label", entry["id"]))
         merged.append(entry)
     return merged, unmatched, matched
@@ -99,21 +101,36 @@ def build_graph(database_url: str, trailing_days: int) -> nx.DiGraph:
 
     if not cp_rows:
         g = build_graph_from_baselines(seed["chokepoints"], seed["ports"])
-        g.graph.update(source=seed["name"], synthetic=True)
+        g.graph.update(
+            source=seed["name"], synthetic=True, provenance="synthetic",
+            coverage={"chokepoints_observed": 0,
+                      "chokepoints_total": len(seed["chokepoints"]),
+                      "ports_observed": 0, "ports_total": len(seed["ports"])},
+        )
         return g
 
     chokepoints, cp_unmatched, cp_matched = merge_baselines(seed["chokepoints"], cp_rows)
     ports, _, port_matched = merge_baselines(seed["ports"], port_rows)
     g = build_graph_from_baselines(chokepoints, ports)
     latest = max(r.latest for r in cp_rows)
+    # Provenance contract (QC REL-02): a single matched row must not present the
+    # whole graph as observed. "observed" requires every chokepoint matched.
+    provenance = "observed" if cp_matched == len(chokepoints) else "mixed"
     g.graph.update(
         source=f"portwatch_daily (trailing {trailing_days}d avg to {latest})",
         synthetic=False,
+        provenance=provenance,
+        coverage={"chokepoints_observed": cp_matched, "chokepoints_total": len(chokepoints),
+                  "ports_observed": port_matched, "ports_total": len(ports)},
         data_warnings=[
             "topology (alt routes, import shares, coordinates) is curated v0 — "
             "not derived from data until Comtrade ingestion",
         ],
     )
+    if provenance == "mixed":
+        g.graph["data_warnings"].insert(0,
+            f"MIXED baselines: {cp_matched}/{len(chokepoints)} chokepoints observed from "
+            "PortWatch; the rest retain synthetic seed volumes")
     if cp_unmatched:
         g.graph["data_warnings"].append(
             f"no PortWatch match for {len(cp_unmatched)} chokepoint(s) "
@@ -121,7 +138,8 @@ def build_graph(database_url: str, trailing_days: int) -> nx.DiGraph:
             if len(cp_unmatched) > 4 else
             f"no PortWatch match for: {', '.join(sorted(cp_unmatched))} — "
             "synthetic volumes retained")
-    log.info("baselines: %d chokepoints + %d ports from DB", cp_matched, port_matched)
+    log.info("baselines: %d chokepoints + %d ports from DB (%s)",
+             cp_matched, port_matched, provenance)
     return g
 
 

@@ -8,15 +8,16 @@ import {
 } from "./api";
 import { Monitoring } from "./Monitoring";
 import {
-  buildSpec, initialBuilderValues, ScenarioBuilder, type BuilderValues,
+  builderFromSpec, buildSpec, initialBuilderValues, ScenarioBuilder, type BuilderValues,
 } from "./Builder";
+import { Advisor } from "./Advisor";
 import { Dashboard } from "./Dashboard";
 import { FcmCanvas } from "./FcmCanvas";
 import { MapView } from "./MapView";
 import { SavedScenarios, Sources } from "./Panel";
 
 export function App() {
-  const [mainView, setMainView] = useState<"monitoring" | "simulation">("simulation");
+  const [mainView, setMainView] = useState<"monitoring" | "simulation" | "advisor">("simulation");
   const [view, setView] = useState<"map" | "fcm">("map");
   const [trade, setTrade] = useState<TradeDependencies | null>(null);
   const [baseline, setBaseline] = useState<Baseline | null>(null);
@@ -69,24 +70,7 @@ export function App() {
   }
 
   function loadScenario(s: SavedScenario) {
-    const enabled = Object.fromEntries(
-      (["container", "dry_bulk", "general_cargo", "roro", "tanker"] as VesselClass[]).map(
-        (c) => [c, (s.spec.class_reductions?.[c] ?? s.spec.capacity_reduction) > 0],
-      ),
-    ) as Record<VesselClass, boolean>;
-    setBuilder((prev) => ({
-      ...prev,
-      targetId: s.spec.target_chokepoint_id,
-      severity: s.spec.capacity_reduction,
-      duration: s.spec.duration_days,
-      cause: s.spec.cause ?? "unspecified",
-      enabled,
-      classReductions: {
-        ...prev.classReductions,
-        ...(s.spec.class_reductions as Record<VesselClass, number> | undefined),
-      },
-      valuePerTon: { ...prev.valuePerTon, ...(s.spec.value_per_ton_usd ?? {}) },
-    }));
+    setBuilder((prev) => builderFromSpec(s.spec, prev));
     setClamps(Object.fromEntries((s.spec.fcm_clamps ?? []).map((c) => [c.concept_id, c.value])));
     setResult(null);
   }
@@ -105,6 +89,10 @@ export function App() {
             onClick={() => setMainView("simulation")}>
             Simulation
           </button>
+          <button className={mainView === "advisor" ? "active" : ""}
+            onClick={() => setMainView("advisor")}>
+            Advisor
+          </button>
         </div>
         {mainView === "simulation" && (
           <div className="view-toggle">
@@ -119,14 +107,25 @@ export function App() {
         <span className="spacer" />
         {IS_DEMO && <span className="flag">static demo</span>}
         {baseline &&
-          (baseline.synthetic ? (
+          (baseline.provenance === "mixed" ? (
+            <span className="flag" title={baseline.source}>
+              mixed data · {baseline.coverage?.chokepoints_observed ?? "?"}/
+              {baseline.coverage?.chokepoints_total ?? "?"} observed
+            </span>
+          ) : baseline.synthetic ? (
             <span className="flag" title={baseline.source}>synthetic seed</span>
           ) : (
             <span className="flag neutral" title={baseline.source}>portwatch baselines</span>
           ))}
         <span className="flag neutral">macro v0</span>
       </header>
-      {mainView === "monitoring" ? (
+      {mainView === "advisor" ? (
+        <Advisor
+          result={result}
+          baseline={baseline}
+          onGoSimulate={() => setMainView("simulation")}
+        />
+      ) : mainView === "monitoring" ? (
         <Monitoring
           baseline={baseline}
           signals={signals}
@@ -184,13 +183,21 @@ export function App() {
             saved={saved}
             spec={spec}
             onSave={async (name) => {
-              await saveScenario(name, spec);
-              refreshSaved();
+              try {
+                await saveScenario(name, spec);
+                refreshSaved();
+              } catch (e) {
+                setError(`could not save scenario — ${(e as Error).message}`);
+              }
             }}
             onLoad={loadScenario}
             onDelete={async (id) => {
-              await deleteScenario(id);
-              refreshSaved();
+              try {
+                await deleteScenario(id);
+                refreshSaved();
+              } catch (e) {
+                setError(`could not delete scenario — ${(e as Error).message}`);
+              }
             }}
           />
           <Sources status={sources} />
