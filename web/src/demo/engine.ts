@@ -217,6 +217,11 @@ export function runScenario(
   if (!node || node.type !== "chokepoint") {
     throw new Error(`Unknown chokepoint: ${scenario.target_chokepoint_id}`);
   }
+  for (const [c, v] of Object.entries(scenario.value_per_ton_usd ?? {})) {
+    if (!(v >= 0) || !Number.isFinite(v)) {
+      throw new Error(`value_per_ton_usd[${c}] must be a finite value >= 0: ${v}`);
+    }
+  }
 
   const baselineDaily = node.baseline_daily_tons ?? 0;
   const sharesProvisional = node.class_shares == null;
@@ -303,6 +308,12 @@ export function runScenario(
 
   const provisional = fcmSpec.edges.filter((e) => e.provenance.provisional).length;
   const warnings: string[] = [];
+  if (!fcm.converged) {
+    warnings.push(
+      "FCM did NOT converge within 100 steps — soft-factor indices are unreliable " +
+        "for this run; do not base decisions on them (increase max_steps or review clamps)",
+    );
+  }
   if (provisional > 0) {
     warnings.push(
       `${provisional}/${fcmSpec.edges.length} FCM edge weights are provisional ` +
@@ -312,6 +323,12 @@ export function runScenario(
   if (baseline.synthetic) {
     warnings.push(
       `baselines: ${baseline.source} — synthetic development seed, not PortWatch data`,
+    );
+  }
+  if (baseline.provenance === "mixed" && node.baseline_source === "synthetic_seed") {
+    warnings.push(
+      `the TARGET chokepoint (${scenario.target_chokepoint_id}) has a synthetic ` +
+        "baseline in this mixed dataset — its volumes are not observed",
     );
   }
   warnings.push(...(baseline.data_warnings ?? []));

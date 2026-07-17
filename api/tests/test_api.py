@@ -24,6 +24,11 @@ def test_health():
 def test_network_baseline_flags_synthetic():
     body = client.get("/network/baseline?refresh=true").json()
     assert body["synthetic"] is True
+    assert body["provenance"] == "synthetic"
+    assert body["coverage"]["chokepoints_observed"] == 0
+    assert body["coverage"]["chokepoints_total"] > 0
+    assert all(n["baseline_source"] == "synthetic_seed"
+               for n in body["nodes"] if n["type"] == "chokepoint")
     ids = {n["id"] for n in body["nodes"]}
     assert "suez_canal" in ids and "port_rotterdam" in ids
     kinds = {e["kind"] for e in body["edges"]}

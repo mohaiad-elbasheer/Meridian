@@ -58,6 +58,7 @@ def build_graph_from_baselines(chokepoints: list[dict], ports: list[dict]) -> nx
             baseline_daily_tons=baseline_tons,
             capacity_daily_tons=baseline_tons * (1.0 + headroom),
             class_shares=cp.get("class_shares"),  # vessel-class tonnage mix (may be None)
+            baseline_source=cp.get("baseline_source", "synthetic_seed"),
         )
     for cp in chokepoints:
         for alt in cp.get("alt_routes", []):

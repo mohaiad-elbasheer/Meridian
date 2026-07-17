@@ -41,6 +41,7 @@ export interface NetworkNode {
   baseline_daily_tons?: number;
   capacity_daily_tons?: number;
   class_shares?: Record<string, number> | null;
+  baseline_source?: "portwatch_daily" | "synthetic_seed";
 }
 
 export interface NetworkEdge {
@@ -51,9 +52,20 @@ export interface NetworkEdge {
   share?: number;
 }
 
+export type Provenance = "synthetic" | "mixed" | "observed";
+
+export interface Coverage {
+  chokepoints_observed: number;
+  chokepoints_total: number;
+  ports_observed: number;
+  ports_total: number;
+}
+
 export interface Baseline {
   source: string;
   synthetic: boolean;
+  provenance?: Provenance;   // per-graph data provenance (QC REL-02)
+  coverage?: Coverage;
   data_warnings: string[];
   nodes: NetworkNode[];
   edges: NetworkEdge[];

@@ -27,7 +27,11 @@ function Info({ title, text }: { title: string; text: string }) {
   );
 }
 
-function ChokepointCard({ node, onSimulate }: { node: NetworkNode; onSimulate: () => void }) {
+function ChokepointCard({ node, showSource, onSimulate }: {
+  node: NetworkNode;
+  showSource: boolean;   // mixed dataset: tag each card with where its baseline came from
+  onSimulate: () => void;
+}) {
   const [series, setSeries] = useState<SeriesResponse | null>(null);
   useEffect(() => {
     fetchTimeseries(node.id, 90).then(setSeries).catch(() => setSeries(null));
@@ -41,7 +45,14 @@ function ChokepointCard({ node, onSimulate }: { node: NetworkNode; onSimulate: (
   return (
     <div className="cp-card">
       <div className="cp-head">
-        <span className="cp-name">{node.label ?? node.id}</span>
+        <span className="cp-name">
+          {node.label ?? node.id}
+          {showSource && (
+            node.baseline_source === "portwatch_daily"
+              ? <span className="src-tag observed">PortWatch</span>
+              : <span className="src-tag">synthetic</span>
+          )}
+        </span>
         <button className="cp-sim" onClick={onSimulate}>simulate ▸</button>
       </div>
       <div className="cp-base">
@@ -187,7 +198,9 @@ export function Monitoring({ baseline, signals, sources, trade, onApplySignals, 
         </h2>
         <div className="cp-grid">
           {chokepoints.map((n) => (
-            <ChokepointCard key={n.id} node={n} onSimulate={() => onSimulate(n.id)} />
+            <ChokepointCard key={n.id} node={n}
+              showSource={baseline?.provenance === "mixed"}
+              onSimulate={() => onSimulate(n.id)} />
           ))}
         </div>
       </section>

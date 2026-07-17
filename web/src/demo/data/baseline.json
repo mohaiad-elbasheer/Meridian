@@ -1,6 +1,13 @@
 {
  "source": "synthetic_seed_v0",
  "synthetic": true,
+ "provenance": "synthetic",
+ "coverage": {
+  "chokepoints_observed": 0,
+  "chokepoints_total": 13,
+  "ports_observed": 0,
+  "ports_total": 16
+ },
  "data_warnings": [],
  "nodes": [
   {
@@ -18,7 +25,8 @@
     "general_cargo": 0.1,
     "roro": 0.05,
     "tanker": 0.22
-   }
+   },
+   "baseline_source": "synthetic_seed"
   },
   {
    "id": "bab_el_mandeb",
@@ -35,7 +43,8 @@
     "general_cargo": 0.1,
     "roro": 0.04,
     "tanker": 0.28
-   }
+   },
+   "baseline_source": "synthetic_seed"
   },
   {
    "id": "strait_of_hormuz",
@@ -52,7 +61,8 @@
     "general_cargo": 0.05,
     "roro": 0.02,
     "tanker": 0.75
-   }
+   },
+   "baseline_source": "synthetic_seed"
   },
   {
    "id": "strait_of_malacca",
@@ -69,7 +79,8 @@
     "general_cargo": 0.08,
     "roro": 0.04,
     "tanker": 0.26
-   }
+   },
+   "baseline_source": "synthetic_seed"
   },
   {
    "id": "panama_canal",
@@ -86,7 +97,8 @@
     "general_cargo": 0.1,
     "roro": 0.07,
     "tanker": 0.18
-   }
+   },
+   "baseline_source": "synthetic_seed"
   },
   {
    "id": "strait_of_gibraltar",
@@ -103,7 +115,8 @@
     "general_cargo": 0.12,
     "roro": 0.08,
     "tanker": 0.2
-   }
+   },
+   "baseline_source": "synthetic_seed"
   },
   {
    "id": "bosporus_strait",
@@ -120,7 +133,8 @@
     "general_cargo": 0.15,
     "roro": 0.05,
     "tanker": 0.2
-   }
+   },
+   "baseline_source": "synthetic_seed"
   },
   {
    "id": "taiwan_strait",
@@ -137,7 +151,8 @@
     "general_cargo": 0.08,
     "roro": 0.06,
     "tanker": 0.16
-   }
+   },
+   "baseline_source": "synthetic_seed"
   },
   {
    "id": "cape_of_good_hope",
@@ -154,7 +169,8 @@
     "general_cargo": 0.1,
     "roro": 0.05,
     "tanker": 0.25
-   }
+   },
+   "baseline_source": "synthetic_seed"
   },
   {
    "id": "strait_of_magellan",
@@ -171,7 +187,8 @@
     "general_cargo": 0.2,
     "roro": 0.05,
     "tanker": 0.15
-   }
+   },
+   "baseline_source": "synthetic_seed"
   },
   {
    "id": "sunda_strait",
@@ -188,7 +205,8 @@
     "general_cargo": 0.1,
     "roro": 0.05,
     "tanker": 0.2
-   }
+   },
+   "baseline_source": "synthetic_seed"
   },
   {
    "id": "lombok_strait",
@@ -205,7 +223,8 @@
     "general_cargo": 0.1,
     "roro": 0.05,
     "tanker": 0.15
-   }
+   },
+   "baseline_source": "synthetic_seed"
   },
   {
    "id": "luzon_strait",
@@ -222,7 +241,8 @@
     "general_cargo": 0.1,
     "roro": 0.05,
     "tanker": 0.2
-   }
+   },
+   "baseline_source": "synthetic_seed"
   },
   {
    "id": "EGY",
