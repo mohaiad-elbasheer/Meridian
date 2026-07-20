@@ -4,7 +4,7 @@ import {
   deleteScenario, fetchBaseline, fetchSignals, fetchSourcesStatus,
   fetchTradeDependencies, listScenarios, saveScenario, simulateScenario,
   type Baseline, type SavedScenario, type ScenarioResult, type SignalsResponse,
-  type SourcesStatus, type TradeDependencies,
+  type SourcesStatus, type TradeDependencies, type VesselClass,
 } from "./api";
 import { Monitoring } from "./Monitoring";
 import {
