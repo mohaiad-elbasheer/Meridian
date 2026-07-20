@@ -1,0 +1,10 @@
+# Build contexts are the repo root — keep heavyweight/host-specific dirs out of
+# the daemon upload and out of COPY web/ . (a host node_modules must never
+# shadow the one installed inside the image).
+.git
+.venv
+**/__pycache__
+**/*.egg-info
+web/node_modules
+web/dist
+web/tsconfig.tsbuildinfo

@@ -1,6 +1,10 @@
 services:
   db:
-    image: timescale/timescaledb:2.20.3-pg16   # pinned; multi-arch, works on OCI Ampere (arm64)
+    # Pinned to what latest-pg16 currently resolves to, so volumes initialised from
+    # latest keep working. If postgres logs a timescaledb extension version mismatch,
+    # your dbdata volume predates the pin: `docker compose down -v` (drops re-ingestable
+    # data only) and start again. Multi-arch, works on OCI Ampere (arm64).
+    image: timescale/timescaledb:2.28.3-pg16
     environment:
       POSTGRES_USER: meridian
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-meridian}
