@@ -1,5 +1,8 @@
 from datetime import datetime, timezone
 
+import httpx
+import respx
+
 from meridian_ingest import gdelt
 
 LASTUPDATE = """\
@@ -66,3 +69,24 @@ def test_aggregate_one_row_per_chokepoint_window():
     assert hormuz["raw"]["by_root_code"] == {"19": 1, "14": 1}
     assert hormuz["raw"]["avg_goldstein"] == -5.0
     assert hormuz["raw"]["chokepoint_source"] == "seed_provisional"
+
+
+@respx.mock
+def test_run_skips_when_advertised_window_404s(capsys, monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", "postgresql://x:x@127.0.0.1:9/x")
+    export_url = "http://data.gdeltproject.org/gdeltv2/20260703121500.export.CSV.zip"
+    respx.get(gdelt.LASTUPDATE_URL).mock(
+        return_value=httpx.Response(200, text=LASTUPDATE))
+    respx.get(export_url).mock(return_value=httpx.Response(404))
+    gdelt.run()  # must not raise, must not touch the DB
+    out = capsys.readouterr().out
+    assert "not available upstream yet (404)" in out
+
+
+def test_4xx_is_not_retryable_but_5xx_is():
+    req = httpx.Request("GET", "http://x")
+    for code, expected in ((404, False), (500, True)):
+        exc = httpx.HTTPStatusError("e", request=req,
+                                    response=httpx.Response(code, request=req))
+        assert gdelt._retryable(exc) is expected
+    assert gdelt._retryable(httpx.ConnectError("boom", request=req)) is True

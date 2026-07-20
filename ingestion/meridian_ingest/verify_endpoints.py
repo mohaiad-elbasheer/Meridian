@@ -3,18 +3,24 @@ latest observation date. Run this after editing .env and before the first ingest
 the URLs were pinned from the PortWatch ArcGIS org but the pinning environment could
 not reach *.arcgis.com, so first-run verification is mandatory.
 
-Usage:  python -m meridian_ingest.verify_endpoints
+Usage:  python -m meridian_ingest.verify_endpoints             # check pinned URLs
+        python -m meridian_ingest.verify_endpoints --discover  # list the PortWatch
+            org's public feature services (title + query URL) to find/repin a layer
 Exit code 0 = both endpoints OK.
 """
 
 from __future__ import annotations
 
+import argparse
 import sys
 
 import httpx
 
 from .portwatch import parse_arcgis_date
 from .settings import Settings
+
+PORTWATCH_ORG_ID = "weJ1QsnbMYJlCHdG"  # from portwatch.imf.org "Access API" links
+ARCGIS_SEARCH_URL = "https://www.arcgis.com/sharing/rest/search"
 
 EXPECTED = {
     "chokepoints": {"portid", "date"},   # minimum for parse_chokepoint
@@ -52,9 +58,38 @@ def check(client: httpx.Client, name: str, query_url: str) -> bool:
     return True
 
 
+def discover(client: httpx.Client) -> None:
+    """List the PortWatch org's public Feature Services so a wrong/renamed layer can
+    be re-pinned in .env without guessing item ids."""
+    start, found = 1, 0
+    while start > 0:
+        page = client.get(ARCGIS_SEARCH_URL, params={
+            "q": f'orgid:{PORTWATCH_ORG_ID} type:"Feature Service"',
+            "num": 50, "start": start, "f": "json",
+        }, timeout=30).json()
+        for item in page.get("results", []):
+            found += 1
+            url = item.get("url") or ""
+            print(f"- {item.get('title')}\n    {url}/0/query")
+        start = page.get("nextStart", -1)
+    if not found:
+        print("no public feature services returned — check connectivity or org id")
+    else:
+        print(f"\n{found} service(s). Pin the matching one in .env as "
+              "PORTWATCH_PORTS_URL / PORTWATCH_CHOKEPOINTS_URL (keep the /0/query "
+              "suffix), then re-run without --discover.")
+
+
 def main() -> None:
-    settings = Settings()
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--discover", action="store_true",
+                    help="list the PortWatch org's public feature services and exit")
+    args = ap.parse_args()
     with httpx.Client() as client:
+        if args.discover:
+            discover(client)
+            return
+        settings = Settings()
         ok = all([
             check(client, "chokepoints", settings.portwatch_chokepoints_url),
             check(client, "ports", settings.portwatch_ports_url),

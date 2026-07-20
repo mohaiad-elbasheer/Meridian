@@ -23,7 +23,7 @@ from importlib import resources
 from typing import Any, Iterator, NamedTuple
 
 import httpx
-from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 from . import db
 from .settings import Settings
@@ -143,7 +143,17 @@ def aggregate(events: Iterator[Event], window: datetime,
     return rows
 
 
-@retry(stop=stop_after_attempt(4), wait=wait_exponential(multiplier=2, max=30))
+def _retryable(exc: BaseException) -> bool:
+    # Retrying a 4xx is pointless: a 404 means the advertised window isn't on the
+    # server (yet, or anymore) and won't appear within our backoff horizon.
+    if isinstance(exc, httpx.HTTPStatusError):
+        return exc.response.status_code >= 500
+    return isinstance(exc, httpx.TransportError)
+
+
+@retry(retry=retry_if_exception(_retryable),
+       stop=stop_after_attempt(4), wait=wait_exponential(multiplier=2, max=30),
+       reraise=True)
 def _get(client: httpx.Client, url: str) -> httpx.Response:
     r = client.get(url, timeout=120)
     r.raise_for_status()
@@ -157,7 +167,17 @@ def run() -> None:
         if not export_url:
             raise SystemExit("gdelt: no export url in lastupdate.txt")
         window = window_from_url(export_url)
-        with zipfile.ZipFile(io.BytesIO(_get(client, export_url).content)) as zf:
+        try:
+            payload = _get(client, export_url).content
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code == 404:
+                # lastupdate.txt occasionally advertises a window before the zip is
+                # uploaded; the next 15-min run will catch it. Not an error.
+                print(f"gdelt: advertised window {window:%Y-%m-%d %H:%M}Z not available "
+                      "upstream yet (404) — skipping this run")
+                return
+            raise
+        with zipfile.ZipFile(io.BytesIO(payload)) as zf:
             csv_bytes = zf.read(zf.namelist()[0])
     rows = aggregate(parse_events(csv_bytes), window, load_chokepoints())
     with db.connect(settings.database_url) as conn:
