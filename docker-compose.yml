@@ -16,14 +16,18 @@ services:
       retries: 12
 
   api:
-    build: ./api
+    build:
+      context: .
+      dockerfile: api/Dockerfile
     environment:
       DATABASE_URL: postgresql://meridian:${POSTGRES_PASSWORD:-meridian}@db:5432/meridian
     depends_on: [db]
     ports: ["8000:8000"]
 
   ingestion:
-    build: ./ingestion
+    build:
+      context: .
+      dockerfile: ingestion/Dockerfile
     env_file: .env
     depends_on:
       db:
@@ -31,7 +35,9 @@ services:
     profiles: ["ingest"]
 
   web:
-    build: ./web
+    build:
+      context: .
+      dockerfile: web/Dockerfile
     depends_on: [api]
     ports: ["5173:80"]
     profiles: ["web"]
